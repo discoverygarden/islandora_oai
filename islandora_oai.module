@@ -11,18 +11,6 @@ define('ISLANDORA_OAI_ADMINISTER_PERMISSION', 'administer islandora oai');
 // @codingStandardsIgnoreEnd
 
 /**
- * Implements hook_permission().
- */
-function islandora_oai_permission() {
-  return array(
-    ISLANDORA_OAI_ADMINISTER_PERMISSION => array(
-      'title' => t('Administer Islandora OAI'),
-      'description' => t('Administer Islandora OAI configuration.'),
-    ),
-  );
-}
-
-/**
  * @FIXME
  * This implementation of hook_menu() cannot be automatically converted because
  * it contains logic (i.e., branching statements, function calls, object
