@@ -1,0 +1,196 @@
+<?php
+
+namespace Drupal\islandora_oai\Form;
+
+use Drupal\Core\Form\ConfigFormBase;
+use Drupal\Core\Form\FormStateInterface;
+
+/**
+ * Module administration form.
+ */
+class Admin extends ConfigFormBase {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getFormId() {
+    return 'islandora_oai_admin_form';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function getEditableConfigNames() {
+    return [''];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function buildForm(array $form, FormStateInterface $form_state) {
+    global $base_url;
+    $form = [
+      '#tree' => TRUE,
+    ];
+    $form['islandora_oai_configuration'] = [
+      '#type' => 'fieldset',
+      '#title' => t('Configuration'),
+      '#collapsible' => FALSE,
+      '#collapsed' => TRUE,
+    ];
+    $form['islandora_oai_configuration']['islandora_oai_repository_name'] = [
+      '#type' => 'textfield',
+      '#title' => t('Repository Name'),
+      '#required' => TRUE,
+      '#size' => '50',
+      '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_repository_name'),
+    ];
+    $form['islandora_oai_configuration']['islandora_oai_path'] = [
+      '#type' => 'textfield',
+      '#title' => t('Path to the Repository'),
+      '#field_prefix' => $base_url . '/',
+      '#required' => TRUE,
+      '#size' => '50',
+      '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_path'),
+      '#description' => t('The path where the OAI-PMH service will respond, e.g. @base_url/oai2', ['@base_url' => $base_url]),
+    ];
+    $form['islandora_oai_configuration']['islandora_oai_repository_identifier'] = [
+      '#type' => 'textfield',
+      '#title' => t('Repository unique identifier'),
+      '#required' => TRUE,
+      '#size' => '50',
+      '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_repository_identifier'),
+      '#description' => t('The identifier for this repository, e.g. oai:<strong>drupal-site.org</strong>:123.'),
+    ];
+    $form['islandora_oai_configuration']['islandora_oai_admin_email'] = [
+      '#type' => 'textfield',
+      '#title' => t('Administrator Email'),
+      '#size' => '50',
+      '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_admin_email'),
+    ];
+    $form['islandora_oai_configuration']['islandora_oai_max_size'] = [
+      '#type' => 'textfield',
+      '#title' => t('Maximum Response Size'),
+      '#size' => '50',
+      '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_max_size'),
+      '#description' => t('The maximum number of records to issue per response. If the result set is larger than this number, a resumption token will be issued'),
+    [;
+    $form['islandora_oai_configuration']['islandora_oai_expire_time'] = [
+      '#type' => 'textfield',
+      '#title' => t('Expiration Time'),
+      '#size' => '50',
+      '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_expire_time'),
+      '#description' => t('The amount of time a resumption token will remain valid, in seconds. Defaults to one day (86400s).'),
+    ];
+    $form['islandora_oai_configuration']['islandora_oai_query_backend'] = [
+      '#type' => 'radios',
+      '#title' => t('Query Backend'),
+      '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_query_backend'),
+      '#description' => t('For larger repositories, OAI may perform poorly when attempting to perform the SPARQL queries it requires. In these cases, using the Solr backend may provide better results.'),
+      '#options' => [
+        'sparql' => t('SPARQL'),
+        'solr' => t('Solr'),
+      ],
+    ];
+    $solr_config_states = [
+      'visible' => [
+        ':input[name="islandora_oai_configuration[islandora_oai_query_backend]"]' => ['value' => 'solr'],
+      ],
+    ];
+    $form['islandora_oai_configuration']['islandora_oai_solr_state_field'] = [
+      '#type' => 'textfield',
+      '#title' => t('Solr Object State Field'),
+      '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_solr_state_field'),
+      '#description' => t("The field in Solr that holds a Fedora object's state ('Active', 'Inactive', or 'Deleted')."),
+      '#states' => $solr_config_states,
+    ];
+    $form['islandora_oai_configuration']['islandora_oai_solr_collection_description_field'] = [
+      '#type' => 'textfield',
+      '#title' => t('Solr Collection Description Field'),
+      '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_solr_collection_description_field'),
+      '#description' => t('The field in Solr to use for collection descriptions.'),
+      '#states' => $solr_config_states,
+    ];
+    $form['islandora_oai_configuration']['islandora_oai_solr_object_ancestors_field'] = [
+      '#type' => 'textfield',
+      '#title' => t('Solr Object Ancestors Field'),
+      '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_solr_object_ancestors_field'),
+      '#description' => t("A multivalued string The field in Solr that defines an object's ancestors. If left blank, Solr will recurse manually to get the child tree of a particular set. Use of this field may return a different set of children than the recursive option; it is the responsibility of the implementer to ensure the ancestors field returns an appropriate hierarchy of parents."),
+      '#states' => $solr_config_states,
+    ];
+
+    // Build up the available request handlers.
+    $defined_handlers = \Drupal::moduleHandler()->invokeAll(ISLANDORA_OAI_REQUEST_HANDLER_HOOK);
+    if (!empty($defined_handlers)) {
+      $form['islandora_oai_configuration']['handlers'] = [
+        '#type' => 'item',
+        '#title' => t('Select an OAI request handler'),
+        '#description' => t('Preferred OAI request handler for Islandora. These may be provided by third-party modules.'),
+        '#tree' => TRUE,
+        '#theme' => 'islandora_viewers_table',
+      ];
+      foreach ($defined_handlers as $name => $profile) {
+        $options[$name] = '';
+        $form['islandora_oai_configuration']['handlers']['name'][$name] = [
+          '#type' => 'hidden',
+          '#value' => $name,
+        ];
+        $form['islandora_oai_configuration']['handlers']['label'][$name] = [
+          '#type' => 'item',
+          '#markup' => $profile['label'],
+        ];
+        $form['islandora_oai_configuration']['handlers']['description'][$name] = [
+          '#type' => 'item',
+          '#markup' => $profile['description'],
+        ];
+        // @FIXME
+  // l() expects a Url object, created from a route name or external URI.
+  // $form['islandora_oai_configuration']['handlers']['configuration'][$name] = array(
+  //         '#type' => 'item',
+  //         '#markup' => (isset($profile['configuration']) AND $profile['configuration'] != '') ? l(t('configure'), $profile['configuration']) : '',
+  //       );
+
+      }
+      $form['islandora_oai_configuration']['handlers']['default'] = [
+        '#type' => 'radios',
+        '#options' => isset($options) ? $options : [],
+        '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_request_handler'),
+      ];
+    }
+    else {
+      $form['islandora_oai_configuration']['handlers']['no_viewers'] = [
+        '#markup' => t('No viewers detected.'),
+      ];
+    }
+    $form['submit'] = [
+      '#type' => 'submit',
+      '#value' => t('Save configuration'),
+    ];
+    return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function submitForm(array &$form, FormStateInterface $form_state) {
+    $config = $this->config('');
+    \Drupal::configFactory()->getEditable('islandora_oai.settings')->set('islandora_oai_repository_name', $form_state['values']['islandora_oai_configuration']['islandora_oai_repository_name'])->save();
+    \Drupal::configFactory()->getEditable('islandora_oai.settings')->set('islandora_oai_path', $form_state['values']['islandora_oai_configuration']['islandora_oai_path'])->save();
+    \Drupal::configFactory()->getEditable('islandora_oai.settings')->set('islandora_oai_repository_identifier', $form_state['values']['islandora_oai_configuration']['islandora_oai_repository_identifier'])->save();
+    \Drupal::configFactory()->getEditable('islandora_oai.settings')->set('islandora_oai_admin_email', $form_state['values']['islandora_oai_configuration']['islandora_oai_admin_email'])->save();
+    \Drupal::configFactory()->getEditable('islandora_oai.settings')->set('islandora_oai_max_size', $form_state['values']['islandora_oai_configuration']['islandora_oai_max_size'])->save();
+    \Drupal::configFactory()->getEditable('islandora_oai.settings')->set('islandora_oai_expire_time', $form_state['values']['islandora_oai_configuration']['islandora_oai_expire_time'])->save();
+    \Drupal::configFactory()->getEditable('islandora_oai.settings')->set('islandora_oai_request_handler', $form_state['values']['islandora_oai_configuration']['handlers']['default'])->save();
+    \Drupal::configFactory()->getEditable('islandora_oai.settings')->set('islandora_oai_query_backend', $form_state['values']['islandora_oai_configuration']['islandora_oai_query_backend'])->save();
+    \Drupal::configFactory()->getEditable('islandora_oai.settings')->set('islandora_oai_solr_state_field', $form_state['values']['islandora_oai_configuration']['islandora_oai_solr_state_field'])->save();
+    \Drupal::configFactory()->getEditable('islandora_oai.settings')->set('islandora_oai_solr_collection_description_field', $form_state['values']['islandora_oai_configuration']['islandora_oai_solr_collection_description_field'])->save();
+    \Drupal::configFactory()->getEditable('islandora_oai.settings')->set('islandora_oai_solr_object_ancestors_field', $form_state['values']['islandora_oai_configuration']['islandora_oai_solr_object_ancestors_field'])->save();
+    // Because of the dynamic pathing of the OAI path we need to rebuild the
+    // menus.
+    menu_rebuild();
+    drupal_set_message(t('The configuration options have been saved.'));
+
+    $config->save();
+  }
+
+}
