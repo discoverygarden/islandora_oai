@@ -70,7 +70,7 @@ EOQ;
 // // @FIXME
 // // This looks like another module's variable. You'll need to rewrite this call
 // // to ensure that it uses the correct configuration object.
-// $qp->buildQuery(format_string('!field:"info:fedora/islandora:collectionCModel"', array(
+// $qp->buildQuery(strtr('!field:"info:fedora/islandora:collectionCModel"', array(
 //         '!field' => variable_get('islandora_solr_content_model_field', 'RELS_EXT_hasModel_uri_ms'),
 //       )), $solr_params);
 
@@ -557,7 +557,7 @@ function islandora_oai_query_solr($start = 0, $field = 'PID', $query = NULL, $se
         $ancestors_field = \Drupal::config('islandora_oai.settings')->get('islandora_oai_solr_object_ancestors_field');
         if (!empty($ancestors_field)) {
           foreach ($sets as $value) {
-            $query_processor->solrParams['fq'][] = format_string('!ancestors_field:("!pid" OR "info:fedora/!pid")', [
+            $query_processor->solrParams['fq'][] = strtr('!ancestors_field:("!pid" OR "info:fedora/!pid")', [
               '!ancestors_field' => $ancestors_field,
               '!pid' => $value,
             ]);
@@ -610,7 +610,7 @@ function islandora_oai_build_membership_fq_statement(array $children) {
   // an issue with huge Solr queries we should re-visit this.
   foreach ($children as $walk) {
     foreach (islandora_oai_get_membership_array() as $collection_field) {
-      $set_fq[] = format_string('!field:("!walk" OR "info:fedora/!walk")', [
+      $set_fq[] = strtr('!field:("!walk" OR "info:fedora/!walk")', [
         '!field' => $collection_field,
         '!walk' => $walk,
       ]);
@@ -646,7 +646,7 @@ function islandora_oai_query_solr_for_child_sets($parent, array &$sets = []) {
 // // @FIXME
 // // This looks like another module's variable. You'll need to rewrite this call
 // // to ensure that it uses the correct configuration object.
-// $qp->solrParams['fq'][] = format_string('!field:"info:fedora/islandora:collectionCModel"', array(
+// $qp->solrParams['fq'][] = strtr('!field:"info:fedora/islandora:collectionCModel"', array(
 //     '!field' => variable_get('islandora_solr_content_model_field', 'RELS_EXT_hasModel_uri_ms'),
 //   ));
 
@@ -850,7 +850,7 @@ EOQ;
     $map_excludes = function ($exclude) {
       return "sameTerm(?model, <info:fedora/$exclude>)";
     };
-    $filters[] = format_string('!(!exclude_conjunction)', [
+    $filters[] = strtr('!(!exclude_conjunction)', [
       '!exclude_conjunction' => implode(' || ', array_map($map_excludes, $excluded_models)),
     ]);
   }
@@ -874,13 +874,13 @@ EOQ;
 //     $key = array_keys($namespace_array, 'islandora');
 //     $namespace_array = array_diff_key($namespace_array, array_flip($key));
 //     $namespace_sparql = implode('|', $namespace_array);
-//     $filters['islandora_namespace_restrictions'] = format_string('regex(str(?object), "info:fedora/(!namespaces):")', array('!namespaces' => $namespace_sparql));
+//     $filters['islandora_namespace_restrictions'] = strtr('regex(str(?object), "info:fedora/(!namespaces):")', array('!namespaces' => $namespace_sparql));
 //   }
 
   $filter_map = function ($filter) {
     return "FILTER($filter)";
   };
-  $sparql_query = format_string($sparql_query, [
+  $sparql_query = strtr($sparql_query, [
     '!vars' => !empty($required['vars']) ? implode(' ', $required['vars']) : '',
     '!required' => !empty($required['statements']) ? implode('. ', $required['statements']) : '',
     '!optionals' => !empty($optionals) ? ('OPTIONAL {{' . implode('} UNION {', $optionals) . '}}') : '',

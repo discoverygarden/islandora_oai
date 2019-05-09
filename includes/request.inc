@@ -521,7 +521,7 @@ EOQ;
           'sort' => "$date_field asc",
           'limit' => 1,
         ];
-        $qp->buildQuery(format_string('!date_field:* AND !state_field:Active', [
+        $qp->buildQuery(strtr('!date_field:* AND !state_field:Active', [
           '!date_field' => $date_field,
           '!state_field' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_solr_state_field'),
         ]));

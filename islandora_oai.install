@@ -185,7 +185,7 @@ function islandora_oai_uninstall() {
   );
   foreach ($metadata_formats as $metadata_prefix) {
     foreach ($variable_variables as $var) {
-      $field = format_string($var, array('!format' => $metadata_prefix));
+      $field = strtr($var, array('!format' => $metadata_prefix));
       // @FIXME
 // // @FIXME
 // // The correct configuration object could not be determined. You'll need to
