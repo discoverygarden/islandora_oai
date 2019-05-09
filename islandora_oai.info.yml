@@ -1,8 +1,10 @@
 name: 'Islandora OAI Provider'
 description: 'Provides access to an Islandora repository via the OAI-PMH 2.0. Based on the OAI2 for CCK module.'
 dependencies:
-  islandora_solr: 'drupal:islandora_solr'
-  islandora: 'drupal:islandora'
+  - :islandora_solr
+  - :islandora
 core: 8.x
 package: 'Islandora Tools'
+configure: islandora_oai.admin
+php: '7.2'
 type: module

@@ -18,120 +18,120 @@
  */
 function islandora_oai_admin_form($form, $form_state) {
   global $base_url;
-  $form = array(
+  $form = [
     '#tree' => TRUE,
-  );
-  $form['islandora_oai_configuration'] = array(
+  ];
+  $form['islandora_oai_configuration'] = [
     '#type' => 'fieldset',
     '#title' => t('Configuration'),
     '#collapsible' => FALSE,
     '#collapsed' => TRUE,
-  );
-  $form['islandora_oai_configuration']['islandora_oai_repository_name'] = array(
+  ];
+  $form['islandora_oai_configuration']['islandora_oai_repository_name'] = [
     '#type' => 'textfield',
     '#title' => t('Repository Name'),
     '#required' => TRUE,
     '#size' => '50',
     '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_repository_name'),
-  );
-  $form['islandora_oai_configuration']['islandora_oai_path'] = array(
+  ];
+  $form['islandora_oai_configuration']['islandora_oai_path'] = [
     '#type' => 'textfield',
     '#title' => t('Path to the Repository'),
     '#field_prefix' => $base_url . '/',
     '#required' => TRUE,
     '#size' => '50',
     '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_path'),
-    '#description' => t('The path where the OAI-PMH service will respond, e.g. @base_url/oai2', array('@base_url' => $base_url)),
-  );
-  $form['islandora_oai_configuration']['islandora_oai_repository_identifier'] = array(
+    '#description' => t('The path where the OAI-PMH service will respond, e.g. @base_url/oai2', ['@base_url' => $base_url]),
+  ];
+  $form['islandora_oai_configuration']['islandora_oai_repository_identifier'] = [
     '#type' => 'textfield',
     '#title' => t('Repository unique identifier'),
     '#required' => TRUE,
     '#size' => '50',
     '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_repository_identifier'),
     '#description' => t('The identifier for this repository, e.g. oai:<strong>drupal-site.org</strong>:123.'),
-  );
-  $form['islandora_oai_configuration']['islandora_oai_admin_email'] = array(
+  ];
+  $form['islandora_oai_configuration']['islandora_oai_admin_email'] = [
     '#type' => 'textfield',
     '#title' => t('Administrator Email'),
     '#size' => '50',
     '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_admin_email'),
-  );
-  $form['islandora_oai_configuration']['islandora_oai_max_size'] = array(
+  ];
+  $form['islandora_oai_configuration']['islandora_oai_max_size'] = [
     '#type' => 'textfield',
     '#title' => t('Maximum Response Size'),
     '#size' => '50',
     '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_max_size'),
     '#description' => t('The maximum number of records to issue per response. If the result set is larger than this number, a resumption token will be issued'),
-  );
-  $form['islandora_oai_configuration']['islandora_oai_expire_time'] = array(
+  [;
+  $form['islandora_oai_configuration']['islandora_oai_expire_time'] = [
     '#type' => 'textfield',
     '#title' => t('Expiration Time'),
     '#size' => '50',
     '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_expire_time'),
     '#description' => t('The amount of time a resumption token will remain valid, in seconds. Defaults to one day (86400s).'),
-  );
-  $form['islandora_oai_configuration']['islandora_oai_query_backend'] = array(
+  ];
+  $form['islandora_oai_configuration']['islandora_oai_query_backend'] = [
     '#type' => 'radios',
     '#title' => t('Query Backend'),
     '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_query_backend'),
     '#description' => t('For larger repositories, OAI may perform poorly when attempting to perform the SPARQL queries it requires. In these cases, using the Solr backend may provide better results.'),
-    '#options' => array(
+    '#options' => [
       'sparql' => t('SPARQL'),
       'solr' => t('Solr'),
-    ),
-  );
-  $solr_config_states = array(
-    'visible' => array(
-      ':input[name="islandora_oai_configuration[islandora_oai_query_backend]"]' => array('value' => 'solr'),
-    ),
-  );
-  $form['islandora_oai_configuration']['islandora_oai_solr_state_field'] = array(
+    ],
+  ];
+  $solr_config_states = [
+    'visible' => [
+      ':input[name="islandora_oai_configuration[islandora_oai_query_backend]"]' => ['value' => 'solr'],
+    ],
+  ];
+  $form['islandora_oai_configuration']['islandora_oai_solr_state_field'] = [
     '#type' => 'textfield',
     '#title' => t('Solr Object State Field'),
     '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_solr_state_field'),
     '#description' => t("The field in Solr that holds a Fedora object's state ('Active', 'Inactive', or 'Deleted')."),
     '#states' => $solr_config_states,
-  );
-  $form['islandora_oai_configuration']['islandora_oai_solr_collection_description_field'] = array(
+  ];
+  $form['islandora_oai_configuration']['islandora_oai_solr_collection_description_field'] = [
     '#type' => 'textfield',
     '#title' => t('Solr Collection Description Field'),
     '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_solr_collection_description_field'),
     '#description' => t('The field in Solr to use for collection descriptions.'),
     '#states' => $solr_config_states,
-  );
-  $form['islandora_oai_configuration']['islandora_oai_solr_object_ancestors_field'] = array(
+  ];
+  $form['islandora_oai_configuration']['islandora_oai_solr_object_ancestors_field'] = [
     '#type' => 'textfield',
     '#title' => t('Solr Object Ancestors Field'),
     '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_solr_object_ancestors_field'),
     '#description' => t("A multivalued string The field in Solr that defines an object's ancestors. If left blank, Solr will recurse manually to get the child tree of a particular set. Use of this field may return a different set of children than the recursive option; it is the responsibility of the implementer to ensure the ancestors field returns an appropriate hierarchy of parents."),
     '#states' => $solr_config_states,
-  );
+  ];
 
   // Build up the available request handlers.
   $defined_handlers = \Drupal::moduleHandler()->invokeAll(ISLANDORA_OAI_REQUEST_HANDLER_HOOK);
   if (!empty($defined_handlers)) {
-    $form['islandora_oai_configuration']['handlers'] = array(
+    $form['islandora_oai_configuration']['handlers'] = [
       '#type' => 'item',
       '#title' => t('Select an OAI request handler'),
       '#description' => t('Preferred OAI request handler for Islandora. These may be provided by third-party modules.'),
       '#tree' => TRUE,
       '#theme' => 'islandora_viewers_table',
-    );
+    ];
     foreach ($defined_handlers as $name => $profile) {
       $options[$name] = '';
-      $form['islandora_oai_configuration']['handlers']['name'][$name] = array(
+      $form['islandora_oai_configuration']['handlers']['name'][$name] = [
         '#type' => 'hidden',
         '#value' => $name,
-      );
-      $form['islandora_oai_configuration']['handlers']['label'][$name] = array(
+      ];
+      $form['islandora_oai_configuration']['handlers']['label'][$name] = [
         '#type' => 'item',
         '#markup' => $profile['label'],
-      );
-      $form['islandora_oai_configuration']['handlers']['description'][$name] = array(
+      ];
+      $form['islandora_oai_configuration']['handlers']['description'][$name] = [
         '#type' => 'item',
         '#markup' => $profile['description'],
-      );
+      ];
       // @FIXME
 // l() expects a Url object, created from a route name or external URI.
 // $form['islandora_oai_configuration']['handlers']['configuration'][$name] = array(
@@ -140,21 +140,21 @@ function islandora_oai_admin_form($form, $form_state) {
 //       );
 
     }
-    $form['islandora_oai_configuration']['handlers']['default'] = array(
+    $form['islandora_oai_configuration']['handlers']['default'] = [
       '#type' => 'radios',
-      '#options' => isset($options) ? $options : array(),
+      '#options' => isset($options) ? $options : [],
       '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_request_handler'),
-    );
+    ];
   }
   else {
-    $form['islandora_oai_configuration']['handlers']['no_viewers'] = array(
+    $form['islandora_oai_configuration']['handlers']['no_viewers'] = [
       '#markup' => t('No viewers detected.'),
-    );
+    ];
   }
-  $form['submit'] = array(
+  $form['submit'] = [
     '#type' => 'submit',
     '#value' => t('Save configuration'),
-  );
+  ];
   return $form;
 }
 

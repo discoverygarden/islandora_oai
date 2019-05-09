@@ -16,49 +16,49 @@
  *   A renderable array representing the handler configuration form.
  */
 function islandora_oai_handler_configuration_form($form, &$form_state) {
-  $form = array(
+  $form = [
     '#tree' => TRUE,
-  );
-  $form['islandora_oai_configuration'] = array(
+  ];
+  $form['islandora_oai_configuration'] = [
     '#type' => 'fieldset',
     '#title' => t('Configuration'),
     '#collapsible' => FALSE,
     '#collapsed' => TRUE,
-  );
-  $form['islandora_oai_configuration']['islandora_oai_date_field'] = array(
+  ];
+  $form['islandora_oai_configuration']['islandora_oai_date_field'] = [
     '#type' => 'textfield',
     '#title' => t('Solr Date Field'),
     '#size' => '50',
     '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_date_field'),
     '#description' => t('The Solr field containing the date to be used.'),
-  );
-  $form['islandora_oai_configuration']['islandora_oai_collection_field'] = array(
+  ]);
+  $form['islandora_oai_configuration']['islandora_oai_collection_field'] = [
     '#type' => 'textarea',
     '#title' => t('Solr RELS-EXT Collection Field'),
     '#size' => '50',
     '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_collection_field'),
     '#description' => t('The Solr fields used to determine what collection, if any, an object is a member of.'),
-  );
-  $form['islandora_oai_configuration']['islandora_oai_content_model_field'] = array(
+  ];
+  $form['islandora_oai_configuration']['islandora_oai_content_model_field'] = [
     '#type' => 'textfield',
     '#title' => t('Solr Content Model Field'),
     '#size' => '50',
     '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_content_model_field'),
     '#description' => t("Field which RELS-EXT datastreams use to define an object's content model."),
-  );
-  $form['islandora_oai_configuration']['islandora_oai_solr_remove_base_filters'] = array(
+  ];
+  $form['islandora_oai_configuration']['islandora_oai_solr_remove_base_filters'] = [
     '#type' => 'checkbox',
     '#title' => t('Remove base Solr filters'),
     '#description' => t('This option removes your configured Solr base filters from these queries. If you want your filters to be applied even though they could affect which objects are returned in the OAI results, uncheck this option.'),
     '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_solr_remove_base_filters'),
-  );
-  $form['islandora_oai_configuration']['islandora_oai_exclude_content_models'] = array(
+  ];
+  $form['islandora_oai_configuration']['islandora_oai_exclude_content_models'] = [
     '#type' => 'textarea',
     '#title' => t('Excluded Content Models'),
     '#size' => '50',
     '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_exclude_content_models'),
     '#description' => t('By default, all objects are visible to OAI metadata harvesters. This field allows you to exclude all objects with a certain content model, e.g "islandora:collectionCModel" to exclude all objects with the Islandora Core Collection content model. Content models are separated by line. NOTE: If islandora:collectionCModel is added, it will break the ListSets verb.'),
-  );
+  ];
   // @FIXME
 // url() expects a route name or an external URI.
 // $form['islandora_oai_configuration']['islandora_oai_exclude_islandora_namespace'] = array(
@@ -71,12 +71,12 @@ function islandora_oai_handler_configuration_form($form, &$form_state) {
 //     )),
 //   );
 
-  $form['islandora_oai_configuration']['islandora_oai_append_dc_thumbnail'] = array(
+  $form['islandora_oai_configuration']['islandora_oai_append_dc_thumbnail'] = [
     '#type' => 'checkbox',
     '#title' => t('Append on dc.identifier.thumbnail to OAI_DC requests?'),
     '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_append_dc_thumbnail'),
     '#description' => t("If this option is selected, a link to an object's thumbnail will be added to OAI_DC responses."),
-  );
+  ];
   // @FIXME
 // // @FIXME
 // // This looks like another module's variable. You'll need to rewrite this call
@@ -88,36 +88,36 @@ function islandora_oai_handler_configuration_form($form, &$form_state) {
 //     ));
 //   }
 
-  $metadata_format_options = array();
-  $metadata_formats = array();
+  $metadata_format_options = [];
+  $metadata_formats = [];
   $results = db_query('SELECT * FROM {islandora_oai_metadata_formats} ORDER BY name');
   foreach ($results as $row) {
     $metadata_format_options[$row->name] = \Drupal\Component\Utility\Unicode::strtoupper($row->name);
     $metadata_formats[$row->name] = $row;
   }
 
-  $form['islandora_oai_metadata'] = array(
+  $form['islandora_oai_metadata'] = [
     '#type' => 'fieldset',
     '#title' => t('Metadata Format'),
     '#collapsible' => FALSE,
     '#collapsed' => FALSE,
-  );
-  $form['islandora_oai_metadata']['islandora_oai_options'] = array(
+  ];
+  $form['islandora_oai_metadata']['islandora_oai_options'] = [
     '#type' => 'fieldset',
     '#title' => t('Transformations'),
     '#collapsible' => FALSE,
     '#collapsed' => FALSE,
     '#weight' => 123,
-  );
-  $form['islandora_oai_metadata']['islandora_oai_metadata_format'] = array(
+  ];
+  $form['islandora_oai_metadata']['islandora_oai_metadata_format'] = [
     '#type' => 'select',
     '#name' => 'islandora_oai_metadata_format',
     '#title' => t('Metadata Format'),
     '#options' => $metadata_format_options,
-  );
+  ];
 
   $oai_invoke_files = \Drupal::moduleHandler()->invokeAll('islandora_oai_get_xsl_files');
-  $transform_options = array('default' => t('No transformation selected'));
+  $transform_options = ['default' => t('No transformation selected')];
   $transform_options = array_merge($transform_options, $oai_invoke_files);
 
   foreach ($metadata_formats as $format) {
@@ -133,39 +133,39 @@ function islandora_oai_handler_configuration_form($form, &$form_state) {
 // // rewrite this call manually.
 // $default_self_transform = variable_get("islandora_oai_self_transform_file_$format->name", 'default');
 
-    $form['islandora_oai_metadata'][$format->name]['islandora_oai_metadata_prefix'] = array(
+    $form['islandora_oai_metadata'][$format->name]['islandora_oai_metadata_prefix'] = [
       '#type' => 'item',
       '#title' => t('Metadata Prefix'),
       '#markup' => $format->metadata_prefix,
       '#description' => t('Default metadata prefix for the selected format.'),
-      '#states' => array(
-        'visible' => array(
-          ':input[name="islandora_oai_metadata_format"]' => array('value' => $format->name),
-        ),
-      ),
-    );
-    $form['islandora_oai_metadata'][$format->name]['islandora_oai_metadata_namespace'] = array(
+      '#states' => [
+        'visible' => [
+          ':input[name="islandora_oai_metadata_format"]' => ['value' => $format->name],
+        ],
+      ],
+    ];
+    $form['islandora_oai_metadata'][$format->name]['islandora_oai_metadata_namespace'] = [
       '#type' => 'item',
       '#title' => t('Metadata Namespace'),
       '#markup' => $format->metadata_namespace,
       '#description' => t('Default metadata namespace for the selected format.'),
-      '#states' => array(
-        'visible' => array(
-          ':input[name="islandora_oai_metadata_format"]' => array('value' => $format->name),
-        ),
-      ),
-    );
-    $form['islandora_oai_metadata'][$format->name]['islandora_oai_schema_location'] = array(
+      '#states' => [
+        'visible' => [
+          ':input[name="islandora_oai_metadata_format"]' => ['value' => $format->name],
+        ],
+      ],
+    ];
+    $form['islandora_oai_metadata'][$format->name]['islandora_oai_schema_location'] = [
       '#type' => 'item',
       '#title' => t('Schema Location'),
       '#markup' => $format->oai2_schema,
       '#description' => t("Default URI for the selected metadata format's schema."),
-      '#states' => array(
-        'visible' => array(
-          ':input[name="islandora_oai_metadata_format"]' => array('value' => $format->name),
-        ),
-      ),
-    );
+      '#states' => [
+        'visible' => [
+          ':input[name="islandora_oai_metadata_format"]' => ['value' => $format->name],
+        ],
+      ],
+    ];
     // @FIXME
 // // @FIXME
 // // The correct configuration object could not be determined. You'll need to
@@ -250,36 +250,36 @@ function islandora_oai_handler_configuration_form($form, &$form_state) {
 //       ),
 //     );
 
-    $form['islandora_oai_metadata']['islandora_oai_options']["islandora_oai_transform_file_$format->metadata_prefix"] = array(
+    $form['islandora_oai_metadata']['islandora_oai_options']["islandora_oai_transform_file_$format->metadata_prefix"] = [
       '#type' => 'select',
-      '#title' => t('File to use for transforming @metadata_prefix', array('@metadata_prefix' => $format->metadata_prefix)),
+      '#title' => t('File to use for transforming @metadata_prefix', ['@metadata_prefix' => $format->metadata_prefix]),
       '#options' => $transform_options,
       '#default_value' => $default_transform,
       '#description' => t('XSL or XSLT file used to translate existing metadata to an appropriate OAI-PMH format.'),
-      '#states' => array(
-        'visible' => array(
-          ':input[name="islandora_oai_metadata_format"]' => array('value' => $format->name),
-        ),
-      ),
-    );
+      '#states' => [
+        'visible' => [
+          ':input[name="islandora_oai_metadata_format"]' => ['value' => $format->name],
+        ],
+      ],
+    ];
 
-    $form['islandora_oai_metadata']['islandora_oai_options']["islandora_oai_self_transform_file_$format->metadata_prefix"] = array(
+    $form['islandora_oai_metadata']['islandora_oai_options']["islandora_oai_self_transform_file_$format->metadata_prefix"] = [
       '#type' => 'select',
-      '#title' => t('File to use for self transforming @metadata_prefix', array('@metadata_prefix' => $format->metadata_prefix)),
+      '#title' => t('File to use for self transforming @metadata_prefix', ['@metadata_prefix' => $format->metadata_prefix]),
       '#options' => $transform_options,
       '#default_value' => $default_self_transform,
       '#description' => t('XSL or XSLT file used to transform xml prior transforming to an appropriate OAI-PMH format.'),
-      '#states' => array(
-        'visible' => array(
-          ':input[name="islandora_oai_metadata_format"]' => array('value' => $format->name),
-        ),
-      ),
-    );
+      '#states' => [
+        'visible' => [
+          ':input[name="islandora_oai_metadata_format"]' => ['value' => $format->name],
+        ],
+      ],
+    ];
   }
-  $form['submit'] = array(
+  $form['submit'] = [
     '#type' => 'submit',
     '#value' => t('Save configuration'),
-  );
+  ];
   return $form;
 }
 
@@ -292,7 +292,7 @@ function islandora_oai_handler_configuration_form($form, &$form_state) {
  *   An array containing the Drupal form state.
  */
 function islandora_oai_handler_configuration_form_validate($form, &$form_state) {
-  $metadata_formats = array();
+  $metadata_formats = [];
   $results = db_query('SELECT metadata_prefix FROM {islandora_oai_metadata_formats}');
   foreach ($results as $row) {
     $metadata_formats[$row->metadata_prefix] = $row->metadata_prefix;
@@ -333,7 +333,7 @@ function islandora_oai_handler_configuration_form_submit($form, &$form_state) {
 
   }
   // Loop through object linking.
-  $metadata_formats = array();
+  $metadata_formats = [];
   $results = db_query('SELECT metadata_prefix FROM {islandora_oai_metadata_formats}');
   foreach ($results as $row) {
     $metadata_formats[$row->metadata_prefix] = $row->metadata_prefix;
@@ -364,7 +364,7 @@ function islandora_oai_handler_configuration_form_submit($form, &$form_state) {
  */
 function islandora_oai_file_management_form($form, &$form_state) {
   // Grab all the user uploaded files.
-  $oai_uploaded_files = array();
+  $oai_uploaded_files = [];
   $upload_path = 'public://islandora_oai_xsls';
   $uploaded_files = file_scan_directory($upload_path, '/.*\.xslt?$/');
 
@@ -378,47 +378,47 @@ function islandora_oai_file_management_form($form, &$form_state) {
 
   }
   ksort($oai_uploaded_files);
-  $form['islandora_oai_files'] = array(
+  $form['islandora_oai_files'] = [
     '#type' => 'fieldset',
     '#title' => t('Files'),
     '#collapsed' => FALSE,
     '#collapsible' => FALSE,
-  );
-  $form['islandora_oai_files']['table'] = array(
+  ];
+  $form['islandora_oai_files']['table'] = [
     '#type' => 'tableselect',
-    '#header' => array(
+    '#header' => [
       t('File name'),
       t('Operations'),
-    ),
+    ],
     '#options' => $oai_uploaded_files,
     '#empty' => t('No uploaded files!'),
-  );
+  ];
   if (count($oai_uploaded_files)) {
-    $form['islandora_oai_files']['remove_selected'] = array(
+    $form['islandora_oai_files']['remove_selected'] = [
       '#type' => 'submit',
       '#value' => t('Delete selected'),
-    );
+    ];
   }
-  $form['islandora_oai_files']['islandora_oai_upload'] = array(
+  $form['islandora_oai_files']['islandora_oai_upload'] = [
     '#type' => 'fieldset',
     '#title' => t('Upload'),
     '#collapsible' => FALSE,
     '#collapsed' => FALSE,
-  );
+  ];
 
-  $form['islandora_oai_files']['islandora_oai_upload']['islandora_oai_upload_xsl'] = array(
+  $form['islandora_oai_files']['islandora_oai_upload']['islandora_oai_upload_xsl'] = [
     '#type' => 'file',
     '#title' => t('Upload an XSL or XSLT file to be used for transformations'),
     '#upload_location' => 'public://islandora_oai_xsls',
-    '#upload_validators' => array(
-      'file_validate_extensions' => array('xsl xslt'),
-    ),
-  );
-  $form['islandora_oai_files']['islandora_oai_upload']['islandora_oai_upload_button'] = array(
+    '#upload_validators' => [
+      'file_validate_extensions' => ['xsl xslt'],
+    ],
+  ];
+  $form['islandora_oai_files']['islandora_oai_upload']['islandora_oai_upload_button'] = [
     '#type' => 'submit',
     '#value' => t('Upload'),
-    '#submit' => array('islandora_oai_upload_file'),
-  );
+    '#submit' => ['islandora_oai_upload_file'],
+  ];
   return $form;
 }
 
@@ -461,7 +461,7 @@ function islandora_oai_file_management_form_submit($form, &$form_state) {
     }
   }
   $fids = db_select('file_managed', 'f')
-    ->fields('f', array('fid', 'uri'))
+    ->fields('f', ['fid', 'uri'])
     ->condition($fid_or)
     ->execute()
     ->fetchAllAssoc('fid', PDO::FETCH_ASSOC);
@@ -486,14 +486,14 @@ function islandora_oai_file_management_form_submit($form, &$form_state) {
  *   An array containing the Drupal form state.
  */
 function islandora_oai_upload_file($form, $form_state) {
-  $file = file_save_upload('islandora_oai_upload_xsl', array('file_validate_extensions' => array('xsl xslt')), 'public://islandora_oai_xsls');
+  $file = file_save_upload('islandora_oai_upload_xsl', ['file_validate_extensions' => ['xsl xslt']], 'public://islandora_oai_xsls');
   if ($file) {
     $file->status = FILE_STATUS_PERMANENT;
     file_save($file);
     drupal_set_message(t("The file @filename was uploaded successfully.",
-      array(
+      [
         '@filename' => $file->filename,
-      )
+      ]
     ));
   }
 }

@@ -43,7 +43,7 @@ function islandora_oai_parse_request() {
   // Argument repeated more than once in the GET request.
   $arg_list = explode('&', ($_SERVER['QUERY_STRING']));
   $repeat_arg = FALSE;
-  $multiple_list = array();
+  $multiple_list = [];
   foreach ($arg_list as $arg) {
     $arg_parts = explode('=', $arg);
     if (!isset($multiple_list[$arg_parts[0]])) {
@@ -194,7 +194,7 @@ function islandora_oai_errors($code, $argument = '', $value = '') {
 
   // Initialize $errors.
   if (!is_array($errors)) {
-    $errors = array();
+    $errors = [];
   }
 
   switch ($code) {
@@ -205,33 +205,33 @@ function islandora_oai_errors($code, $argument = '', $value = '') {
 
     // Clear out errors and return nothing.
     case 'reset':
-      $errors = array();
+      $errors = [];
       return;
 
     case 'badArgument':
-      $text = t("The argument '@argument' (value=@value) included in the request is not valid.", array('@argument' => $argument, '@value' => $value));
+      $text = t("The argument '@argument' (value=@value) included in the request is not valid.", ['@argument' => $argument, '@value' => $value]);
       break;
 
     case 'badGranularity':
-      $text = t("The value '@value' of the argument '@argument' is not valid.", array('@value' => $value, '@argument' => $argument));
+      $text = t("The value '@value' of the argument '@argument' is not valid.", ['@value' => $value, '@argument' => $argument]);
       $code = 'badArgument';
       break;
 
     case 'badResumptionToken':
-      $text = t("The resumptionToken '@value' does not exist or has already expired.", array('@value' => $value));
+      $text = t("The resumptionToken '@value' does not exist or has already expired.", ['@value' => $value]);
       break;
 
     case 'badRequestMethod':
-      $text = t("The request method '@argument' is unknown.", array('@argument' => $argument));
+      $text = t("The request method '@argument' is unknown.", ['@argument' => $argument]);
       $code = 'badVerb';
       break;
 
     case 'badVerb':
-      $text = t("The verb '@argument' provided in the request is illegal.", array('@argument' => $argument));
+      $text = t("The verb '@argument' provided in the request is illegal.", ['@argument' => $argument]);
       break;
 
     case 'cannotDisseminateFormat':
-      $text = t("The metadata format '@value' given by @argument is not supported by this repository.", array('@value' => $value, '@argument' => $argument));
+      $text = t("The metadata format '@value' given by @argument is not supported by this repository.", ['@value' => $value, '@argument' => $argument]);
       break;
 
     case 'exclusiveArgument':
@@ -240,11 +240,11 @@ function islandora_oai_errors($code, $argument = '', $value = '') {
       break;
 
     case 'idDoesNotExist':
-      $text = t("The value '@value' of the identifier is illegal for this repository.", array('@value' => $value));
+      $text = t("The value '@value' of the identifier is illegal for this repository.", ['@value' => $value]);
       break;
 
     case 'missingArgument':
-      $text = t("The required argument '@argument' is missing in the request.", array('@argument' => $argument));
+      $text = t("The required argument '@argument' is missing in the request.", ['@argument' => $argument]);
       $code = 'badArgument';
       break;
 
@@ -285,7 +285,7 @@ function islandora_oai_errors($code, $argument = '', $value = '') {
         code: '@code',
         argument: '@argument',
         value: '@value'",
-        array('@code' => $code, '@argument' => $argument, '@value' => $value));
+        ['@code' => $code, '@argument' => $argument, '@value' => $value]);
       $code = 'badArgument';
   }
   $errors[$code] = $text;
@@ -314,7 +314,7 @@ function islandora_oai_get_record(&$writer, $args) {
         break;
 
       case 'metadataPrefix':
-        $result = db_query("SELECT * FROM {islandora_oai_metadata_formats} WHERE BINARY metadata_prefix=:metadata_prefix", array(':metadata_prefix' => $val));
+        $result = db_query("SELECT * FROM {islandora_oai_metadata_formats} WHERE BINARY metadata_prefix=:metadata_prefix", [':metadata_prefix' => $val]);
         if ($result->rowCount() > 0) {
           $metadata_prefix = $val;
         }
@@ -341,9 +341,9 @@ function islandora_oai_get_record(&$writer, $args) {
   if (isset($record_existence['file'])) {
     require_once $record_existence['file'];
   }
-  $record = call_user_func($record_existence['function'], array(
+  $record = call_user_func($record_existence['function'], [
     'pid' => $identifier,
-  ));
+  ]);
   if (!$record) {
     islandora_oai_add_error('idDoesNotExist', '', $identifier);
     return FALSE;
@@ -517,14 +517,14 @@ EOQ;
       case 'solr':
         $date_field = \Drupal::config('islandora_oai.settings')->get('islandora_oai_date_field');
         $qp = new IslandoraSolrQueryProcessor();
-        $params = array(
+        $params = [
           'sort' => "$date_field asc",
           'limit' => 1,
-        );
-        $qp->buildQuery(format_string('!date_field:* AND !state_field:Active', array(
+        ];
+        $qp->buildQuery(format_string('!date_field:* AND !state_field:Active', [
           '!date_field' => $date_field,
           '!state_field' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_solr_state_field'),
-        )));
+        ]));
         $qp->executeQuery(FALSE);
         $result = reset($qp->islandoraSolrResult['response']['objects']);
         $earliest_datestamp = $result['solr_doc'][$date_field];
@@ -549,7 +549,7 @@ EOQ;
  *   FALSE if an error is encountered.
  */
 function islandora_oai_list_id_rec(&$writer, $args, $list_rec = FALSE) {
-  $query_args = array();
+  $query_args = [];
   // Max records to send in one response.
   $max_records = \Drupal::config('islandora_oai.settings')->get('islandora_oai_max_size');
   $expire_seconds = \Drupal::config('islandora_oai.settings')->get('islandora_oai_expire_time');
@@ -605,7 +605,7 @@ function islandora_oai_list_id_rec(&$writer, $args, $list_rec = FALSE) {
 
       case 'metadataPrefix':
         if (!isset($metadata_prefix)) {
-          $result = db_query("SELECT * FROM {islandora_oai_metadata_formats} WHERE BINARY metadata_prefix=:metadata_prefix ", array(':metadata_prefix' => $val));
+          $result = db_query("SELECT * FROM {islandora_oai_metadata_formats} WHERE BINARY metadata_prefix=:metadata_prefix ", [':metadata_prefix' => $val]);
 
           if ($result->rowCount() > 0 && !isset($metadata_prefix)) {
             $metadata_prefix = $val;
@@ -681,14 +681,14 @@ function islandora_oai_list_id_rec(&$writer, $args, $list_rec = FALSE) {
     }
     $from = isset($from) ? $from : NULL;
     $until = isset($until) ? $until : NULL;
-    $query_args = array($from, $until);
+    $query_args = [$from, $until];
   }
-  $params = array(
+  $params = [
     'token' => $token,
     'set' => isset($set) ? $set : FALSE,
     'from' => isset($from) ? $from : FALSE,
     'until' => isset($until) ? $until : FALSE,
-  );
+  ];
   // If it's ListRecords go grab the ListRecords request.
   if ($list_rec) {
     $list_records_request = islandora_oai_filter_function('ListRecords');
@@ -726,14 +726,14 @@ function islandora_oai_list_id_rec(&$writer, $args, $list_rec = FALSE) {
       $delivered_records = (int) $token->deliveredrecords + $max_records;
 
       db_insert('islandora_oai_tokens')
-        ->fields(array(
+        ->fields([
           'id' => $token_string,
           'deliveredrecords' => $delivered_records,
           'queryargs' => isset($arg_string) ? $arg_string : NULL,
           'setargs' => isset($set) ? $set : NULL,
           'metadata_prefix' => $metadata_prefix,
           'timestamp' => time(),
-        ))
+        ])
         ->execute();
 
       islandora_oai_write_token_xml($writer, $num_rows, $token->deliveredrecords, $expire_time, $token_string);
@@ -785,9 +785,9 @@ function islandora_oai_build_record_response(&$writer, $record, $full_record = F
   if (isset($set_membership['file'])) {
     require_once $set_membership['file'];
   }
-  $sets = call_user_func($set_membership['function'], array(
+  $sets = call_user_func($set_membership['function'], [
     'record' => $record,
-  ));
+  ]);
   foreach ($sets as $set) {
     $set = str_replace('info:fedora/', '', $set);
     $set_spec = str_replace(':', '_', $set);
@@ -801,10 +801,10 @@ function islandora_oai_build_record_response(&$writer, $record, $full_record = F
     if (isset($record_xml['file'])) {
       require_once $record_xml['file'];
     }
-    $oai_output = call_user_func($record_xml['function'], array(
+    $oai_output = call_user_func($record_xml['function'], [
       'metadata_prefix' => $metadata_prefix,
       'pid' => $record['pid'],
-    ));
+    ]);
     if (!empty($oai_output)) {
       $writer->startElement('metadata');
       $writer->writeRaw($oai_output);
@@ -872,7 +872,7 @@ function islandora_oai_write_token_xml(&$writer, $num_rows, $delivered_records, 
  */
 function islandora_oai_get_token($resumption_token) {
   $token_query = db_select('islandora_oai_tokens', 'i')
-    ->fields('i', array())
+    ->fields('i', [])
     ->condition('id', $resumption_token)
     ->range(0, 1)
     ->execute()
@@ -922,7 +922,7 @@ EOQ;
         break;
 
       case 'metadataPrefix':
-        $result = db_query("SELECT * FROM {islandora_oai_metadata_formats} WHERE BINARY metadata_prefix=:metadata_prefix", array(':metadata_prefix' => $val));
+        $result = db_query("SELECT * FROM {islandora_oai_metadata_formats} WHERE BINARY metadata_prefix=:metadata_prefix", [':metadata_prefix' => $val]);
         if ($result->rowCount() > 0) {
           $metadata_prefix = $val;
         }
@@ -939,15 +939,15 @@ EOQ;
     }
   }
 
-  $list_meta_data_formats = array();
+  $list_meta_data_formats = [];
   $result = db_query("SELECT * FROM {islandora_oai_metadata_formats}");
 
   foreach ($result as $fmt) {
-    $list_meta_data_formats[] = array(
+    $list_meta_data_formats[] = [
       'metadataPrefix' => $fmt->metadata_prefix,
       'schema' => $fmt->oai2_schema,
       'metadataNamespace' => $fmt->metadata_namespace,
-    );
+    ];
   }
 
   if (count($list_meta_data_formats) > 0) {
@@ -1023,10 +1023,10 @@ function islandora_oai_list_sets($writer, $args) {
     $token->deliveredrecords = 0;
     $token->extquery = '';
   }
-  $params = array(
+  $params = [
     'token' => $token,
     'max_records' => $max_records,
-  );
+  ];
 
   $list_sets_request = islandora_oai_filter_function('ListSets');
   if (isset($list_sets_request['file'])) {
@@ -1067,11 +1067,11 @@ function islandora_oai_list_sets($writer, $args) {
       $delivered_records = (int) $token->deliveredrecords + $max_records;
 
       db_insert('islandora_oai_tokens')
-        ->fields(array(
+        ->fields([
           'id' => $token_string,
           'deliveredrecords' => $delivered_records,
           'timestamp' => time(),
-        ))
+        ])
         ->execute();
       islandora_oai_write_token_xml($writer, $total_records, $token->deliveredrecords, $expire_time, $token_string);
     }

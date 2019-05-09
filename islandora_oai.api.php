@@ -96,39 +96,39 @@ function hook_islandora_oai_get_xsl_files() {
  *    the record belongs to.
  */
 function hook_islandora_oai_identify_request_handler() {
-  return array(
-    'my_cool_oai_handler' => array(
+  return [
+    'my_cool_oai_handler' => [
       'label' => t('My Cool OAI Handler'),
       'description' => t('Provides a standard OAI implementation for Islandora.'),
       'configuration' => 'admin/islandora/tools/my-cool-oai/handler',
-      'requests' => array(
-        'ListIdentifiers' => array(
+      'requests' => [
+        'ListIdentifiers' => [
           'file' => drupal_get_path('module', 'my_cool_oai_handler') . '/includes/handler.inc',
           'function' => 'my_cool_oai_handler_retrieve_records_or_identifiers',
-        ),
-        'ListRecords' => array(
+        ],
+        'ListRecords' => [
           'file' => drupal_get_path('module', 'my_cool_oai_handler') . '/includes/handler.inc',
           'function' => 'my_cool_oai_handler_retrieve_records_or_identifiers',
-        ),
-        'ListSets' => array(
+        ],
+        'ListSets' => [
           'file' => drupal_get_path('module', 'my_cool_oai_handler') . '/includes/handler.inc',
           'function' => 'my_cool_oai_handler_retrieve_sets',
-        ),
-        'GetRecord' => array(
+        ],
+        'GetRecord' => [
           'file' => drupal_get_path('module', 'my_cool_oai_handler') . '/includes/handler.inc',
           'function' => 'my_cool_oai_handler_retrieve_record',
-        ),
-        'response_xml' => array(
+        ],
+        'response_xml' => [
           'file' => drupal_get_path('module', 'my_cool_oai_handler') . '/includes/handler.inc',
           'function' => 'my_cool_oai_handler_object_response_xml',
-        ),
-        'set_membership' => array(
+        ],
+        'set_membership' => [
           'file' => drupal_get_path('module', 'my_cool_oai_handler') . '/includes/handler.inc',
           'function' => 'my_cool_oai_handler_get_membership',
-        ),
-      ),
-    ),
-  );
+        ],
+      ],
+    ],
+  ];
 }
 
 /**

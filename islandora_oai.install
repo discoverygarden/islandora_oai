@@ -12,47 +12,47 @@ function islandora_oai_install() {
   \Drupal::service("file_system")->mkdir('public://islandora_oai_xsls');
 
   db_insert('islandora_oai_metadata_formats')
-  ->fields(array(
+  ->fields([
     'name' => 'oai_dc',
     'metadata_prefix' => 'oai_dc',
     'oai2_schema' => 'http://www.openarchives.org/OAI/2.0/oai_dc.xsd',
     'metadata_namespace' => 'http://www.openarchives.org/OAI/2.0/oai_dc/',
     'record_prefix' => 'dc',
     'record_namespace' => 'http://purl.org/dc/elements/1.1/',
-  ))
+  ])
   ->execute();
 
   db_insert('islandora_oai_metadata_formats')
-  ->fields(array(
+  ->fields([
     'name' => 'oai_etdms',
     'metadata_prefix' => 'oai_etdms',
     'oai2_schema' => 'http://www.ndltd.org/standards/metadata/etdms/1-0/etdms.xsd',
     'metadata_namespace' => 'http://www.ndltd.org/standards/metadata/etdms/1.0/',
     'record_prefix' => 'thesis',
     'record_namespace' => 'http://www.ndltd.org/standards/metadata/etdms/1.0/',
-  ))
+  ])
   ->execute();
 
   db_insert('islandora_oai_metadata_formats')
-    ->fields(array(
+    ->fields([
       'name' => 'mods',
       'metadata_prefix' => 'mods',
       'oai2_schema' => 'http://www.loc.gov/standards/mods/v3/mods-3-4.xsd',
       'metadata_namespace' => 'http://www.loc.gov/mods/v3',
       'record_prefix' => 'mods',
       'record_namespace' => 'http://www.loc.gov/mods/v3',
-    ))
+    ])
     ->execute();
 
   db_insert('islandora_oai_metadata_formats')
-    ->fields(array(
+    ->fields([
       'name' => 'qdc',
       'metadata_prefix' => 'oai_qdc',
       'oai2_schema' => 'http://dublincore.org/schemas/xmls/qdc/2008/02/11/qualifieddc.xsd',
       'metadata_namespace' => 'http://purl.org/dc/terms/',
       'record_prefix' => 'dc',
       'record_namespace' => 'http://purl.org/dc/terms/',
-    ))
+    ])
     ->execute();
 }
 
@@ -60,100 +60,100 @@ function islandora_oai_install() {
  * Implements hook_schema().
  */
 function islandora_oai_schema() {
-  $schema = array();
+  $schema = [];
 
-  $schema['islandora_oai_tokens'] = array(
-    'fields' => array(
-      'id' => array(
+  $schema['islandora_oai_tokens'] = [
+    'fields' => [
+      'id' => [
         'type' => 'int',
         'size' => 'big',
         'not null' => TRUE,
         'default' => 0,
         'disp-width' => '20',
-      ),
-      'deliveredrecords' => array(
+      ],
+      'deliveredrecords' => [
         'type' => 'int',
         'not null' => TRUE,
         'default' => 0,
         'disp-width' => '11',
-      ),
-      'extquery' => array(
+      ],
+      'extquery' => [
         'type' => 'varchar',
         'length' => '255',
         'not null' => FALSE,
         'default' => '',
-      ),
-      'queryargs' => array(
+      ],
+      'queryargs' => [
         'type' => 'varchar',
         'length' => '255',
         'not null' => FALSE,
         'default' => '',
-      ),
-      'setargs' => array(
+      ],
+      'setargs' => [
         'type' => 'varchar',
         // Length of Fedora pid.
         'length' => '64',
         'not null' => FALSE,
         'default' => '',
-      ),
-      'metadata_prefix' => array(
+      ],
+      'metadata_prefix' => [
         'type' => 'varchar',
         'length' => '255',
         'not null' => FALSE,
         'default' => '',
-      ),
-      'timestamp' => array(
+      ],
+      'timestamp' => [
         'type' => 'int',
         'not null' => TRUE,
         'default' => 0,
         'disp-width' => '11',
-      ),
-    ),
-    'primary key' => array('id'),
-  );
+      ],
+    ],
+    'primary key' => ['id'],
+  ];
 
-  $schema['islandora_oai_metadata_formats'] = array(
+  $schema['islandora_oai_metadata_formats'] = [
     'description' => 'Stores information about OAI2 formats',
-    'fields' => array(
-      'name' => array(
+    'fields' => [
+      'name' => [
         'type' => 'varchar',
         'length' => '100',
         'not null' => TRUE,
         'default' => '',
-      ),
-      'metadata_prefix' => array(
+      ],
+      'metadata_prefix' => [
         'type' => 'varchar',
         'length' => '100',
         'not null' => TRUE,
         'default' => '',
-      ),
-      'oai2_schema' => array(
+      ],
+      'oai2_schema' => [
         'type' => 'varchar',
         'length' => '255',
         'not null' => TRUE,
         'default' => '',
-      ),
-      'metadata_namespace' => array(
+      ],
+      'metadata_namespace' => [
         'type' => 'varchar',
         'length' => '255',
         'not null' => TRUE,
         'default' => '',
-      ),
-      'record_prefix' => array(
+      ],
+      'record_prefix' => [
         'type' => 'varchar',
         'length' => '100',
         'not null' => TRUE,
         'default' => '',
-      ),
-      'record_namespace' => array(
+      ],
+      'record_namespace' => [
         'type' => 'varchar',
         'length' => '255',
         'not null' => TRUE,
         'default' => '',
-      ),
-    ),
-    'primary key' => array('name'),
-  );
+      ],
+    ],
+    'primary key' => ['name'],
+  ];
   return $schema;
 }
 

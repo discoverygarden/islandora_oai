@@ -27,8 +27,8 @@ function islandora_oai_retrieve_sets($params) {
   switch (\Drupal::config('islandora_oai.settings')->get('islandora_oai_query_backend')) {
     case 'sparql':
       $connection = islandora_get_tuque_connection();
-      $records = array();
-      $filters = array('sameTerm(?model, <info:fedora/islandora:collectionCModel>)');
+      $records = [];
+      $filters = ['sameTerm(?model, <info:fedora/islandora:collectionCModel>)'];
       $sparql_query = islandora_oai_construct_sparql_query_for_sets($filters);
       $total_records = $connection->repository->ri->countQuery($sparql_query, 'sparql');
       $sparql_query .= <<<EOQ
@@ -44,10 +44,10 @@ EOQ;
           $description = islandora_oai_get_set_dc_portion($object['DC']);
         }
         $pid = $result['object']['value'];
-        $records[$pid] = array(
+        $records[$pid] = [
           'pid' => $pid,
           'label' => $result['title']['value'],
-        );
+        ];
         if ($description) {
           $records[$pid]['description'] = $description;
         }
@@ -62,10 +62,10 @@ EOQ;
 // // to ensure that it uses the correct configuration object.
 // $label_field = variable_get('islandora_solr_object_label_field', 'fgs_label_s');
 
-      $solr_params = array(
+      $solr_params = [
         'limit' => $params['max_records'],
         'sort' => $label_field,
-      );
+      ];
       // @FIXME
 // // @FIXME
 // // This looks like another module's variable. You'll need to rewrite this call
@@ -77,7 +77,7 @@ EOQ;
       $qp->solrStart = $params['token']->deliveredrecords;
       $qp->executeQuery(FALSE);
       $total_records = $qp->islandoraSolrResult['response']['numFound'];
-      $records = array();
+      $records = [];
       // @FIXME
 // // @FIXME
 // // This looks like another module's variable. You'll need to rewrite this call
@@ -85,10 +85,10 @@ EOQ;
 // $datastreams_field = variable_get('islandora_solr_datastream_id_field', 'fedora_datastreams_ms');
 
       foreach ($qp->islandoraSolrResult['response']['objects'] as $object) {
-        $records[$object['PID']] = array(
+        $records[$object['PID']] = [
           'pid' => $object['PID'],
           'label' => $object['solr_doc'][$label_field],
-        );
+        ];
         if (isset($object['solr_doc'][$datastreams_field]) && in_array('DC', $object['solr_doc'][$datastreams_field])) {
           $loaded_object = islandora_object_load($object['PID']);
           $records[$object['PID']]['description'] = islandora_oai_get_set_dc_portion($loaded_object['DC']);
@@ -96,10 +96,10 @@ EOQ;
       }
       break;
   }
-  return array(
+  return [
     'total_records' => $total_records,
     'records' => $records,
-  );
+  ];
 }
 
 /**
@@ -222,7 +222,7 @@ function islandora_oai_object_response_xml($params) {
 //     $dom->loadXML($oai_output);
 //     $results = db_query('SELECT * FROM {islandora_oai_metadata_formats} WHERE BINARY metadata_prefix = :metadata_prefix', array(':metadata_prefix' => $params['metadata_prefix']));
 //     $record = $results->fetchObject();
-// 
+//
 //     $object_url = url("islandora/object/{$object->id}", array(
 //       'absolute' => TRUE,
 //       'language' => NULL,
@@ -230,7 +230,7 @@ function islandora_oai_object_response_xml($params) {
 //     $xpath = variable_get("islandora_oai_object_links_for_{$params['metadata_prefix']}_xpath", '');
 //     $field = variable_get("islandora_oai_object_links_for_{$params['metadata_prefix']}_field", '');
 //     $record_namespace = variable_get("islandora_oai_object_links_for_{$params['metadata_prefix']}_record_namespace", FALSE);
-// 
+//
 //     if ($xpath) {
 //       $dom_xpath = new DOMXPath($dom);
 //       $dom_xpath->registerNamespace($record->record_prefix, $record->record_namespace);
@@ -273,18 +273,18 @@ function islandora_oai_object_response_xml($params) {
 
   // Transformation fails.
   if (empty($oai_output) && isset($object[$param])) {
-    \Drupal::logger('islandora_oai')->error('The pid @pidname failed to transform on the @datastream datastream with the file @file.', array(
+    \Drupal::logger('islandora_oai')->error('The pid @pidname failed to transform on the @datastream datastream with the file @file.', [
         '@pidname' => $params['pid'],
         '@file' => $file,
         '@datastream' => $param,
-      ));
+      ]);
   }
   // Datastream doesn't exist.
   elseif (!isset($object[$param])) {
-    \Drupal::logger('islandora_oai')->error("The pid @pidname failed to transform on the @datastream datastream as the datastream doesn't exist.", array(
+    \Drupal::logger('islandora_oai')->error("The pid @pidname failed to transform on the @datastream datastream as the datastream doesn't exist.", [
         '@pidname' => $params['pid'],
         '@datastream' => $param,
-      ));
+      ]);
   }
 
   // Allow modules to alter the OAI-PMH record.
@@ -335,7 +335,7 @@ function islandora_oai_retrieve_record($params) {
  * @see hook_islandora_oai_identify_request_handler()
  */
 function islandora_oai_get_membership($params) {
-  $sets = array();
+  $sets = [];
   foreach (islandora_oai_get_membership_array() as $collection_field) {
     if (isset($params['record']['solr_doc'][$collection_field])) {
       // Need to cast to array such that we can check for multiple collections.
@@ -362,7 +362,7 @@ function islandora_oai_get_membership($params) {
  *   An array describing the record retrieved from Solr.
  */
 function islandora_oai_retrieve_records_or_identifiers($params) {
-  $records = array();
+  $records = [];
   $set = $params['set'];
   $from = $params['from'];
   $until = $params['until'];
@@ -397,10 +397,10 @@ function islandora_oai_retrieve_records_or_identifiers($params) {
   foreach ($results['objects'] as $solr_object) {
     $records[] = islandora_oai_construct_record_from_solr_response($solr_object);
   }
-  return array(
+  return [
     'total_records' => $results['numFound'],
     'records' => $records,
-  );
+  ];
 }
 
 /**
@@ -413,11 +413,11 @@ function islandora_oai_retrieve_records_or_identifiers($params) {
  *   An array describing the record retrieved from Solr.
  */
 function islandora_oai_construct_record_from_solr_response($solr_object) {
-  return array(
+  return [
     'pid' => $solr_object['PID'],
     'date' => $solr_object['solr_doc'][\Drupal::config('islandora_oai.settings')->get('islandora_oai_date_field')],
     'solr_doc' => $solr_object['solr_doc'],
-  );
+  ];
 }
 
 /**
@@ -530,7 +530,7 @@ function islandora_oai_query_solr($start = 0, $field = 'PID', $query = NULL, $se
       $set = trim($set);
     };
     array_walk($sets, $repair_sets);
-    $descendants = array();
+    $descendants = [];
 
     switch (\Drupal::config('islandora_oai.settings')->get('islandora_oai_query_backend')) {
       case 'sparql':
@@ -557,10 +557,10 @@ function islandora_oai_query_solr($start = 0, $field = 'PID', $query = NULL, $se
         $ancestors_field = \Drupal::config('islandora_oai.settings')->get('islandora_oai_solr_object_ancestors_field');
         if (!empty($ancestors_field)) {
           foreach ($sets as $value) {
-            $query_processor->solrParams['fq'][] = format_string('!ancestors_field:("!pid" OR "info:fedora/!pid")', array(
+            $query_processor->solrParams['fq'][] = format_string('!ancestors_field:("!pid" OR "info:fedora/!pid")', [
               '!ancestors_field' => $ancestors_field,
               '!pid' => $value,
-            ));
+            ]);
           }
         }
         // Otherwise we have to recurse manually.
@@ -588,8 +588,8 @@ function islandora_oai_query_solr($start = 0, $field = 'PID', $query = NULL, $se
     $solr_results = $query_processor->islandoraSolrResult['response'];
   }
   catch (Exception $e) {
-    drupal_set_message(t('error searching @message', array('@message' => $e->getMessage())), 'error');
-    $solr_results = array();
+    drupal_set_message(t('error searching @message', ['@message' => $e->getMessage()]), 'error');
+    $solr_results = [];
   }
   return $solr_results;
 }
@@ -604,16 +604,16 @@ function islandora_oai_query_solr($start = 0, $field = 'PID', $query = NULL, $se
  *   The 'fq' statement.
  */
 function islandora_oai_build_membership_fq_statement(array $children) {
-  $set_fq = array();
+  $set_fq = [];
   // We are using OR here to account for fields in Solr that may index
   // just the PID or the entire URI. In the future if performance becomes
   // an issue with huge Solr queries we should re-visit this.
   foreach ($children as $walk) {
     foreach (islandora_oai_get_membership_array() as $collection_field) {
-      $set_fq[] = format_string('!field:("!walk" OR "info:fedora/!walk")', array(
+      $set_fq[] = format_string('!field:("!walk" OR "info:fedora/!walk")', [
         '!field' => $collection_field,
         '!walk' => $walk,
-      ));
+      ]);
     }
   }
   return implode(' OR ', $set_fq);
@@ -630,17 +630,17 @@ function islandora_oai_build_membership_fq_statement(array $children) {
  * @return array
  *   A list of set PIDs.
  */
-function islandora_oai_query_solr_for_child_sets($parent, &$sets = array()) {
+function islandora_oai_query_solr_for_child_sets($parent, &$sets = []) {
 
   module_load_include('inc', 'islandora_solr', 'includes/utilities');
   $qp = new IslandoraSolrQueryProcessor();
   $qp->buildQuery('*:*');
   $qp->solrParams['fl'] = 'PID';
   // Make sure we get everything but still filter on XACML permissions.
-  $qp->solrParams['fq'] = array();
+  $qp->solrParams['fq'] = [];
   \Drupal::moduleHandler()->invoke('islandora_xacml_api', 'islandora_solr_query', [$qp]);
   // Set is part of the current collection.
-  $qp->solrParams['fq'][] = islandora_oai_build_membership_fq_statement(array($parent));
+  $qp->solrParams['fq'][] = islandora_oai_build_membership_fq_statement([$parent]);
   // Set is also a collection itself.
   // @FIXME
 // // @FIXME
@@ -784,7 +784,7 @@ function islandora_oai_query_ri_for_child_sets($set) {
  */
 function islandora_oai_get_membership_array() {
   // Store in a static variable, to avoid re-parsing within the same request.
-  $mini_cache = &drupal_static(__FUNCTION__, array());
+  $mini_cache = &drupal_static(__FUNCTION__, []);
 
   if (empty($mini_cache)) {
     foreach (preg_split('/(\\r?\\n|\\r)+/', \Drupal::config('islandora_oai.settings')->get('islandora_oai_collection_field')) as $spec) {
@@ -824,7 +824,7 @@ function islandora_oai_get_restricted_models() {
  * @return string
  *   The SPARQL query to be executed.
  */
-function islandora_oai_construct_sparql_query_for_sets($filters, $required = array()) {
+function islandora_oai_construct_sparql_query_for_sets($filters, $required = []) {
   module_load_include('inc', 'islandora', 'includes/tuque');
   $sparql_query = <<<EOQ
   SELECT DISTINCT ?object ?title ?created !vars
@@ -841,18 +841,18 @@ function islandora_oai_construct_sparql_query_for_sets($filters, $required = arr
   ORDER BY ?title
 EOQ;
   $optionals = (array) \Drupal::moduleHandler()->invoke('islandora_xacml_api', 'islandora_basic_collection_get_query_optionals', ['view']);
-  $filter_modules = array(
+  $filter_modules = [
     'islandora_xacml_api',
     'islandora',
-  );
+  ];
   $excluded_models = islandora_oai_get_restricted_models();
   if (!empty($excluded_models)) {
     $map_excludes = function ($exclude) {
       return "sameTerm(?model, <info:fedora/$exclude>)";
     };
-    $filters[] = format_string('!(!exclude_conjunction)', array(
+    $filters[] = format_string('!(!exclude_conjunction)', [
       '!exclude_conjunction' => implode(' || ', array_map($map_excludes, $excluded_models)),
-    ));
+    ]);
   }
 
   foreach ($filter_modules as $module) {
@@ -880,11 +880,11 @@ EOQ;
   $filter_map = function ($filter) {
     return "FILTER($filter)";
   };
-  $sparql_query = format_string($sparql_query, array(
+  $sparql_query = format_string($sparql_query, [
     '!vars' => !empty($required['vars']) ? implode(' ', $required['vars']) : '',
     '!required' => !empty($required['statements']) ? implode('. ', $required['statements']) : '',
     '!optionals' => !empty($optionals) ? ('OPTIONAL {{' . implode('} UNION {', $optionals) . '}}') : '',
     '!filters' => !empty($filters) ? implode(' ', array_map($filter_map, $filters)) : '',
-  ));
+  ]);
   return $sparql_query;
 }
