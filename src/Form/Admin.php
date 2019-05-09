@@ -74,7 +74,7 @@ class Admin extends ConfigFormBase {
       '#size' => '50',
       '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_max_size'),
       '#description' => t('The maximum number of records to issue per response. If the result set is larger than this number, a resumption token will be issued'),
-    [;
+    ];
     $form['islandora_oai_configuration']['islandora_oai_expire_time'] = [
       '#type' => 'textfield',
       '#title' => t('Expiration Time'),
