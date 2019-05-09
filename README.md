@@ -1,4 +1,4 @@
-# Islandora OAI [![Build Status](https://travis-ci.org/Islandora/islandora_oai.png?branch=7.x)](https://travis-ci.org/Islandora/islandora_oai)
+# Islandora OAI
 
 ## Introduction
 
