@@ -38,35 +38,35 @@ class FileManagement extends FormBase {
     ksort($oai_uploaded_files);
     $form['islandora_oai_files'] = [
       '#type' => 'fieldset',
-      '#title' => t('Files'),
+      '#title' => $this->t('Files'),
       '#collapsed' => FALSE,
       '#collapsible' => FALSE,
     ];
     $form['islandora_oai_files']['table'] = [
       '#type' => 'tableselect',
       '#header' => [
-        t('File name'),
-        t('Operations'),
+        $this->t('File name'),
+        $this->t('Operations'),
       ],
       '#options' => $oai_uploaded_files,
-      '#empty' => t('No uploaded files!'),
+      '#empty' => $this->t('No uploaded files!'),
     ];
     if (count($oai_uploaded_files)) {
       $form['islandora_oai_files']['remove_selected'] = [
         '#type' => 'submit',
-        '#value' => t('Delete selected'),
+        '#value' => $this->t('Delete selected'),
       ];
     }
     $form['islandora_oai_files']['islandora_oai_upload'] = [
       '#type' => 'fieldset',
-      '#title' => t('Upload'),
+      '#title' => $this->t('Upload'),
       '#collapsible' => FALSE,
       '#collapsed' => FALSE,
     ];
 
     $form['islandora_oai_files']['islandora_oai_upload']['islandora_oai_upload_xsl'] = [
       '#type' => 'file',
-      '#title' => t('Upload an XSL or XSLT file to be used for transformations'),
+      '#title' => $this->t('Upload an XSL or XSLT file to be used for transformations'),
       '#upload_location' => 'public://islandora_oai_xsls',
       '#upload_validators' => [
         'file_validate_extensions' => ['xsl xslt'],
@@ -74,7 +74,7 @@ class FileManagement extends FormBase {
     ];
     $form['islandora_oai_files']['islandora_oai_upload']['islandora_oai_upload_button'] = [
       '#type' => 'submit',
-      '#value' => t('Upload'),
+      '#value' => $this->t('Upload'),
       '#submit' => ['islandora_oai_upload_file'],
     ];
     return $form;
@@ -121,7 +121,7 @@ class FileManagement extends FormBase {
         }
       }
       if (!$selected) {
-        form_set_error('table', t('Must select at least one entry to delete!'));
+        form_set_error('table', $this->t('Must select at least one entry to delete!'));
       }
     }
   }

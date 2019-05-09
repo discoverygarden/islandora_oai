@@ -23,7 +23,7 @@
  *
  * @see hook_islandora_oai_identify_request_handler()
  */
-function islandora_oai_retrieve_sets($params) {
+function islandora_oai_retrieve_sets(array $params) {
   switch (\Drupal::config('islandora_oai.settings')->get('islandora_oai_query_backend')) {
     case 'sparql':
       $connection = islandora_get_tuque_connection();
@@ -132,7 +132,7 @@ function islandora_oai_get_set_dc_portion(AbstractDatastream $dc) {
  *
  * @see hook_islandora_oai_identify_request_handler()
  */
-function islandora_oai_object_response_xml($params) {
+function islandora_oai_object_response_xml(array $params) {
   $object = islandora_object_load($params['pid']);
   // @FIXME
 // // @FIXME
@@ -274,17 +274,17 @@ function islandora_oai_object_response_xml($params) {
   // Transformation fails.
   if (empty($oai_output) && isset($object[$param])) {
     \Drupal::logger('islandora_oai')->error('The pid @pidname failed to transform on the @datastream datastream with the file @file.', [
-        '@pidname' => $params['pid'],
-        '@file' => $file,
-        '@datastream' => $param,
-      ]);
+      '@pidname' => $params['pid'],
+      '@file' => $file,
+      '@datastream' => $param,
+    ]);
   }
   // Datastream doesn't exist.
   elseif (!isset($object[$param])) {
     \Drupal::logger('islandora_oai')->error("The pid @pidname failed to transform on the @datastream datastream as the datastream doesn't exist.", [
-        '@pidname' => $params['pid'],
-        '@datastream' => $param,
-      ]);
+      '@pidname' => $params['pid'],
+      '@datastream' => $param,
+    ]);
   }
 
   // Allow modules to alter the OAI-PMH record.
@@ -308,7 +308,7 @@ function islandora_oai_object_response_xml($params) {
  *
  * @see hook_islandora_oai_identify_request_handler()
  */
-function islandora_oai_retrieve_record($params) {
+function islandora_oai_retrieve_record(array $params) {
   $pid = $params['pid'];
   $record = FALSE;
   $results = islandora_oai_query_solr(0, 'PID', $pid);
@@ -334,7 +334,7 @@ function islandora_oai_retrieve_record($params) {
  *
  * @see hook_islandora_oai_identify_request_handler()
  */
-function islandora_oai_get_membership($params) {
+function islandora_oai_get_membership(array $params) {
   $sets = [];
   foreach (islandora_oai_get_membership_array() as $collection_field) {
     if (isset($params['record']['solr_doc'][$collection_field])) {
@@ -361,7 +361,7 @@ function islandora_oai_get_membership($params) {
  * @return array
  *   An array describing the record retrieved from Solr.
  */
-function islandora_oai_retrieve_records_or_identifiers($params) {
+function islandora_oai_retrieve_records_or_identifiers(array $params) {
   $records = [];
   $set = $params['set'];
   $from = $params['from'];
@@ -412,7 +412,7 @@ function islandora_oai_retrieve_records_or_identifiers($params) {
  * @return array
  *   An array describing the record retrieved from Solr.
  */
-function islandora_oai_construct_record_from_solr_response($solr_object) {
+function islandora_oai_construct_record_from_solr_response(array $solr_object) {
   return [
     'pid' => $solr_object['PID'],
     'date' => $solr_object['solr_doc'][\Drupal::config('islandora_oai.settings')->get('islandora_oai_date_field')],
@@ -525,7 +525,7 @@ function islandora_oai_query_solr($start = 0, $field = 'PID', $query = NULL, $se
     $sets = explode(':', $set);
     // Replace the first occurrence of _ with a : so we are back to a
     // valid pid.
-    $repair_sets = function(&$set) {
+    $repair_sets = function (&$set) {
       $set = preg_replace('/_/', ':', $set, 1);
       $set = trim($set);
     };
@@ -630,7 +630,7 @@ function islandora_oai_build_membership_fq_statement(array $children) {
  * @return array
  *   A list of set PIDs.
  */
-function islandora_oai_query_solr_for_child_sets($parent, &$sets = []) {
+function islandora_oai_query_solr_for_child_sets($parent, array &$sets = []) {
 
   module_load_include('inc', 'islandora_solr', 'includes/utilities');
   $qp = new IslandoraSolrQueryProcessor();
@@ -654,7 +654,7 @@ function islandora_oai_query_solr_for_child_sets($parent, &$sets = []) {
   // XXX: Use POST as the filters for membership to a collection can be very
   // large.
   $qp->executeQuery(FALSE, TRUE);
-  $get_pid = function($object) {
+  $get_pid = function ($object) {
     return $object['PID'];
   };
   $pids = array_map($get_pid, $qp->islandoraSolrResult['response']['objects']);
@@ -824,7 +824,7 @@ function islandora_oai_get_restricted_models() {
  * @return string
  *   The SPARQL query to be executed.
  */
-function islandora_oai_construct_sparql_query_for_sets($filters, $required = []) {
+function islandora_oai_construct_sparql_query_for_sets(array $filters, array $required = []) {
   module_load_include('inc', 'islandora', 'includes/tuque');
   $sparql_query = <<<EOQ
   SELECT DISTINCT ?object ?title ?created !vars

@@ -33,43 +33,43 @@ class HandlerAdmin extends ConfigFormBase {
     ];
     $form['islandora_oai_configuration'] = [
       '#type' => 'fieldset',
-      '#title' => t('Configuration'),
+      '#title' => $this->t('Configuration'),
       '#collapsible' => FALSE,
       '#collapsed' => TRUE,
     ];
     $form['islandora_oai_configuration']['islandora_oai_date_field'] = [
       '#type' => 'textfield',
-      '#title' => t('Solr Date Field'),
+      '#title' => $this->t('Solr Date Field'),
       '#size' => '50',
       '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_date_field'),
-      '#description' => t('The Solr field containing the date to be used.'),
+      '#description' => $this->t('The Solr field containing the date to be used.'),
     ];
     $form['islandora_oai_configuration']['islandora_oai_collection_field'] = [
       '#type' => 'textarea',
-      '#title' => t('Solr RELS-EXT Collection Field'),
+      '#title' => $this->t('Solr RELS-EXT Collection Field'),
       '#size' => '50',
       '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_collection_field'),
-      '#description' => t('The Solr fields used to determine what collection, if any, an object is a member of.'),
+      '#description' => $this->t('The Solr fields used to determine what collection, if any, an object is a member of.'),
     ];
     $form['islandora_oai_configuration']['islandora_oai_content_model_field'] = [
       '#type' => 'textfield',
-      '#title' => t('Solr Content Model Field'),
+      '#title' => $this->t('Solr Content Model Field'),
       '#size' => '50',
       '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_content_model_field'),
-      '#description' => t("Field which RELS-EXT datastreams use to define an object's content model."),
+      '#description' => $this->t("Field which RELS-EXT datastreams use to define an object's content model."),
     ];
     $form['islandora_oai_configuration']['islandora_oai_solr_remove_base_filters'] = [
       '#type' => 'checkbox',
-      '#title' => t('Remove base Solr filters'),
-      '#description' => t('This option removes your configured Solr base filters from these queries. If you want your filters to be applied even though they could affect which objects are returned in the OAI results, uncheck this option.'),
+      '#title' => $this->t('Remove base Solr filters'),
+      '#description' => $this->t('This option removes your configured Solr base filters from these queries. If you want your filters to be applied even though they could affect which objects are returned in the OAI results, uncheck this option.'),
       '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_solr_remove_base_filters'),
     ];
     $form['islandora_oai_configuration']['islandora_oai_exclude_content_models'] = [
       '#type' => 'textarea',
-      '#title' => t('Excluded Content Models'),
+      '#title' => $this->t('Excluded Content Models'),
       '#size' => '50',
       '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_exclude_content_models'),
-      '#description' => t('By default, all objects are visible to OAI metadata harvesters. This field allows you to exclude all objects with a certain content model, e.g "islandora:collectionCModel" to exclude all objects with the Islandora Core Collection content model. Content models are separated by line. NOTE: If islandora:collectionCModel is added, it will break the ListSets verb.'),
+      '#description' => $this->t('By default, all objects are visible to OAI metadata harvesters. This field allows you to exclude all objects with a certain content model, e.g "islandora:collectionCModel" to exclude all objects with the Islandora Core Collection content model. Content models are separated by line. NOTE: If islandora:collectionCModel is added, it will break the ListSets verb.'),
     ];
     // @FIXME
   // url() expects a route name or an external URI.
@@ -85,9 +85,9 @@ class HandlerAdmin extends ConfigFormBase {
 
     $form['islandora_oai_configuration']['islandora_oai_append_dc_thumbnail'] = [
       '#type' => 'checkbox',
-      '#title' => t('Append on dc.identifier.thumbnail to OAI_DC requests?'),
+      '#title' => $this->t('Append on dc.identifier.thumbnail to OAI_DC requests?'),
       '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_append_dc_thumbnail'),
-      '#description' => t("If this option is selected, a link to an object's thumbnail will be added to OAI_DC responses."),
+      '#description' => $this->t("If this option is selected, a link to an object's thumbnail will be added to OAI_DC responses."),
     ];
     // @FIXME
   // // @FIXME
@@ -110,13 +110,13 @@ class HandlerAdmin extends ConfigFormBase {
 
     $form['islandora_oai_metadata'] = [
       '#type' => 'fieldset',
-      '#title' => t('Metadata Format'),
+      '#title' => $this->t('Metadata Format'),
       '#collapsible' => FALSE,
       '#collapsed' => FALSE,
     ];
     $form['islandora_oai_metadata']['islandora_oai_options'] = [
       '#type' => 'fieldset',
-      '#title' => t('Transformations'),
+      '#title' => $this->t('Transformations'),
       '#collapsible' => FALSE,
       '#collapsed' => FALSE,
       '#weight' => 123,
@@ -124,12 +124,12 @@ class HandlerAdmin extends ConfigFormBase {
     $form['islandora_oai_metadata']['islandora_oai_metadata_format'] = [
       '#type' => 'select',
       '#name' => 'islandora_oai_metadata_format',
-      '#title' => t('Metadata Format'),
+      '#title' => $this->t('Metadata Format'),
       '#options' => $metadata_format_options,
     ];
 
     $oai_invoke_files = \Drupal::moduleHandler()->invokeAll('islandora_oai_get_xsl_files');
-    $transform_options = ['default' => t('No transformation selected')];
+    $transform_options = ['default' => $this->t('No transformation selected')];
     $transform_options = array_merge($transform_options, $oai_invoke_files);
 
     foreach ($metadata_formats as $format) {
@@ -147,9 +147,9 @@ class HandlerAdmin extends ConfigFormBase {
 
       $form['islandora_oai_metadata'][$format->name]['islandora_oai_metadata_prefix'] = [
         '#type' => 'item',
-        '#title' => t('Metadata Prefix'),
+        '#title' => $this->t('Metadata Prefix'),
         '#markup' => $format->metadata_prefix,
-        '#description' => t('Default metadata prefix for the selected format.'),
+        '#description' => $this->t('Default metadata prefix for the selected format.'),
         '#states' => [
           'visible' => [
             ':input[name="islandora_oai_metadata_format"]' => ['value' => $format->name],
@@ -158,9 +158,9 @@ class HandlerAdmin extends ConfigFormBase {
       ];
       $form['islandora_oai_metadata'][$format->name]['islandora_oai_metadata_namespace'] = [
         '#type' => 'item',
-        '#title' => t('Metadata Namespace'),
+        '#title' => $this->t('Metadata Namespace'),
         '#markup' => $format->metadata_namespace,
-        '#description' => t('Default metadata namespace for the selected format.'),
+        '#description' => $this->t('Default metadata namespace for the selected format.'),
         '#states' => [
           'visible' => [
             ':input[name="islandora_oai_metadata_format"]' => ['value' => $format->name],
@@ -169,9 +169,9 @@ class HandlerAdmin extends ConfigFormBase {
       ];
       $form['islandora_oai_metadata'][$format->name]['islandora_oai_schema_location'] = [
         '#type' => 'item',
-        '#title' => t('Schema Location'),
+        '#title' => $this->t('Schema Location'),
         '#markup' => $format->oai2_schema,
-        '#description' => t("Default URI for the selected metadata format's schema."),
+        '#description' => $this->t("Default URI for the selected metadata format's schema."),
         '#states' => [
           'visible' => [
             ':input[name="islandora_oai_metadata_format"]' => ['value' => $format->name],
@@ -264,10 +264,10 @@ class HandlerAdmin extends ConfigFormBase {
 
       $form['islandora_oai_metadata']['islandora_oai_options']["islandora_oai_transform_file_$format->metadata_prefix"] = [
         '#type' => 'select',
-        '#title' => t('File to use for transforming @metadata_prefix', ['@metadata_prefix' => $format->metadata_prefix]),
+        '#title' => $this->t('File to use for transforming @metadata_prefix', ['@metadata_prefix' => $format->metadata_prefix]),
         '#options' => $transform_options,
         '#default_value' => $default_transform,
-        '#description' => t('XSL or XSLT file used to translate existing metadata to an appropriate OAI-PMH format.'),
+        '#description' => $this->t('XSL or XSLT file used to translate existing metadata to an appropriate OAI-PMH format.'),
         '#states' => [
           'visible' => [
             ':input[name="islandora_oai_metadata_format"]' => ['value' => $format->name],
@@ -277,10 +277,10 @@ class HandlerAdmin extends ConfigFormBase {
 
       $form['islandora_oai_metadata']['islandora_oai_options']["islandora_oai_self_transform_file_$format->metadata_prefix"] = [
         '#type' => 'select',
-        '#title' => t('File to use for self transforming @metadata_prefix', ['@metadata_prefix' => $format->metadata_prefix]),
+        '#title' => $this->t('File to use for self transforming @metadata_prefix', ['@metadata_prefix' => $format->metadata_prefix]),
         '#options' => $transform_options,
         '#default_value' => $default_self_transform,
-        '#description' => t('XSL or XSLT file used to transform xml prior transforming to an appropriate OAI-PMH format.'),
+        '#description' => $this->t('XSL or XSLT file used to transform xml prior transforming to an appropriate OAI-PMH format.'),
         '#states' => [
           'visible' => [
             ':input[name="islandora_oai_metadata_format"]' => ['value' => $format->name],
@@ -290,7 +290,7 @@ class HandlerAdmin extends ConfigFormBase {
     }
     $form['submit'] = [
       '#type' => 'submit',
-      '#value' => t('Save configuration'),
+      '#value' => $this->t('Save configuration'),
     ];
     return $form;
   }
@@ -308,7 +308,7 @@ class HandlerAdmin extends ConfigFormBase {
       if ($form_state['values']['islandora_oai_metadata'][$format]["islandora_oai_include_object_links_for_{$format}"]) {
         $field = trim($form_state['values']['islandora_oai_metadata'][$format]["islandora_oai_object_links_for_{$format}_field"]);
         if (empty($field)) {
-          form_error($form['islandora_oai_metadata'][$format]["islandora_oai_object_links_for_{$format}_field"], t('The field must not be empty.'));
+          form_error($form['islandora_oai_metadata'][$format]["islandora_oai_object_links_for_{$format}_field"], $this->t('The field must not be empty.'));
         }
       }
     }
@@ -351,7 +351,7 @@ class HandlerAdmin extends ConfigFormBase {
 
       }
     }
-    drupal_set_message(t('The configuration options have been saved.'));
+    drupal_set_message($this->t('The configuration options have been saved.'));
 
     $config->save();
   }

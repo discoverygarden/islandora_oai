@@ -164,7 +164,7 @@ function islandora_oai_get_errors() {
  * @param string $value
  *   The argument value causing the error.
  *
- * @return NULL|array
+ * @return null|array
  *   Nothing is returned if not 'get', an array of errors otherwise.
  */
 function islandora_oai_add_error($code, $argument = '', $value = '') {
@@ -175,8 +175,8 @@ function islandora_oai_add_error($code, $argument = '', $value = '') {
  * Define errors based on OAI2 specification.
  *
  * Helper function for islandora_oai_add_error and islandora_oai_get_errors.
- * Basically faking a singleton with getter and setter methods.
- * OAI2 specification: http://www.openarchives.org/OAI/openarchivesprotocol.html
+ * Basically faking a singleton with getter and setter methods. OAI2
+ * specification: http://www.openarchives.org/OAI/openarchivesprotocol.html.
  *
  * @param string $code
  *   Error code to be added, or 'get' if we want to get the errors array.
@@ -185,7 +185,7 @@ function islandora_oai_add_error($code, $argument = '', $value = '') {
  * @param string $value
  *   The argument value causing the error.
  *
- * @return NULL|array
+ * @return null|array
  *   Nothing is returned if not 'get', an array of errors otherwise.
  */
 function islandora_oai_errors($code, $argument = '', $value = '') {
@@ -302,7 +302,7 @@ function islandora_oai_errors($code, $argument = '', $value = '') {
  * @return bool
  *   FALSE if we encountered an error.
  */
-function islandora_oai_get_record(&$writer, $args) {
+function islandora_oai_get_record(&$writer, array $args) {
   foreach ($args as $key => $val) {
     switch ($key) {
       case 'identifier':
@@ -442,7 +442,7 @@ function islandora_oai_get_random_token() {
  * @return bool
  *   FALSE if an error is encoutered.
  */
-function islandora_oai_identify(&$writer, $args) {
+function islandora_oai_identify(&$writer, array $args) {
   $error_text = islandora_oai_get_errors();
 
   // Catch for a bad argument.
@@ -541,14 +541,14 @@ EOQ;
  * @param object $writer
  *   The XMLWriter object being passed by reference for constructing our output.
  * @param array $args
- *   Arguments of the POST or GET Request
+ *   Arguments of the POST or GET Request.
  * @param bool $list_rec
  *   List identifiers if FALSE, records if TRUE.
  *
  * @return bool
  *   FALSE if an error is encountered.
  */
-function islandora_oai_list_id_rec(&$writer, $args, $list_rec = FALSE) {
+function islandora_oai_list_id_rec(&$writer, array $args, $list_rec = FALSE) {
   $query_args = [];
   // Max records to send in one response.
   $max_records = \Drupal::config('islandora_oai.settings')->get('islandora_oai_max_size');
@@ -766,7 +766,7 @@ function islandora_oai_list_id_rec(&$writer, $args, $list_rec = FALSE) {
  * @param string $metadata_prefix
  *   The metadata prefix we are searching for.
  */
-function islandora_oai_build_record_response(&$writer, $record, $full_record = FALSE, $metadata_prefix = 'oai_dc') {
+function islandora_oai_build_record_response(&$writer, array $record, $full_record = FALSE, $metadata_prefix = 'oai_dc') {
   $identifier = $record['pid'];
   $identifier = str_replace(':', '_', $identifier);
   $repo_id = \Drupal::config('islandora_oai.settings')->get('islandora_oai_repository_identifier');
@@ -898,7 +898,7 @@ function islandora_oai_get_token($resumption_token) {
  * @return bool
  *   FALSE if an error is encountered.
  */
-function islandora_oai_list_metadata_formats(&$writer, $args) {
+function islandora_oai_list_metadata_formats(&$writer, array $args) {
   foreach ($args as $key => $val) {
     switch ($key) {
       case 'identifier':
@@ -971,14 +971,13 @@ EOQ;
  *
  * @param object $writer
  *   The XMLWriter object being passed by reference for constructing our output.
- *
  * @param array $args
  *   Arguments of the $_POST or the $_GET request.
  *
  * @return bool
  *   FALSE if an error is encountered.
  */
-function islandora_oai_list_sets($writer, $args) {
+function islandora_oai_list_sets($writer, array $args) {
   module_load_include('inc', 'islandora', 'includes/utilities');
 
   // Max records to send in one response.

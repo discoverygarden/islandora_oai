@@ -169,7 +169,7 @@ function islandora_oai_uninstall() {
   }
   \Drupal::service("file_system")->rmdir($upload_path);
 
-  $metadata_formats = array();
+  $metadata_formats = [];
   $results = db_query('SELECT metadata_prefix FROM {islandora_oai_metadata_formats} ORDER BY name');
   foreach ($results as $row) {
     $metadata_formats[] = $row->metadata_prefix;

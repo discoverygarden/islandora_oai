@@ -5,8 +5,10 @@
  * Module used to respond to OAI requests.
  */
 
+// @codingStandardsIgnoreStart
 define('ISLANDORA_OAI_REQUEST_HANDLER_HOOK', 'islandora_oai_identify_request_handler');
 define('ISLANDORA_OAI_ADMINISTER_PERMISSION', 'administer islandora oai');
+// @codingStandardsIgnoreEnd
 
 /**
  * Implements hook_permission().
@@ -29,8 +31,6 @@ function islandora_oai_permission() {
  * For more information on how to convert hook_menu() to Drupal 8's new routing
  * and linking systems, see https://api.drupal.org/api/drupal/core%21includes%21menu.inc/group/menu/8
  */
-
-
 function islandora_oai_menu() {
   $items = array();
   $items['admin/islandora/tools/islandora-oai'] = array(
@@ -106,7 +106,6 @@ function islandora_oai_islandora_oai_get_xsl_files() {
   }
   return $transform_options;
 }
-
 
 /**
  * Implements hook_cron().
