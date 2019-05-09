@@ -1,0 +1,21 @@
+islandora_oai.admin:
+  path: '/admin/config/islandora/tools/islandora-oai'
+  defaults:
+    _form: '\Drupal\islandora_oai\Form\Admin'
+    _title: 'Islandora OAI'
+  requirements:
+    _permission: 'administer islandora oai'
+islandora_oai.handler_admin:
+  path: '/admin/config/islandora/tools/islandora-oai/handler'
+  defaults:
+    _form: '\Drupal\islandora_oai\Form\HandlerAdmin'
+    _title: 'Islandora OAI Request Handler'
+  requirements:
+    _permission: 'administer islandora oai'
+islandora_oai.handler_files_management:
+  path: '/admin/config/islandora/tools/islandora-oai/handler/files'
+  defaults:
+    _form: '\Drupal\islandora_oai\Form\FileManagement'
+    _title: 'File Management'
+  requirements:
+    _permission: 'administer islandora oai'

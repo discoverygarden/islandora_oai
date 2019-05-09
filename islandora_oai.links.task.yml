@@ -1,0 +1,9 @@
+islandora_oai.handler_admin:
+  route_name: islandora_oai.handler_admin
+  title: 'Settings'
+  base_route: islandora_oai.handler_admin
+islandora_oai.handler_files_management:
+  route_name: islandora_oai.handler_files_management
+  title: 'File Management'
+  base_route: islandora_oai.handler_admin
+  description: 'Manage the upload files for Islandora OAI'

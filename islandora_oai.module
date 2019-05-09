@@ -10,53 +10,7 @@ define('ISLANDORA_OAI_REQUEST_HANDLER_HOOK', 'islandora_oai_identify_request_han
 define('ISLANDORA_OAI_ADMINISTER_PERMISSION', 'administer islandora oai');
 // @codingStandardsIgnoreEnd
 
-/**
- * @FIXME
- * This implementation of hook_menu() cannot be automatically converted because
- * it contains logic (i.e., branching statements, function calls, object
- * instantiation, etc.) You will need to convert it manually. Sorry!
- *
- * For more information on how to convert hook_menu() to Drupal 8's new routing
- * and linking systems, see https://api.drupal.org/api/drupal/core%21includes%21menu.inc/group/menu/8
- */
 function islandora_oai_menu() {
-  $items = array();
-  $items['admin/islandora/tools/islandora-oai'] = array(
-    'title' => 'Islandora OAI',
-    'description' => 'Configure the Islandora OAI module',
-    'file' => 'includes/admin.form.inc',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('islandora_oai_admin_form'),
-    'access arguments' => array(ISLANDORA_OAI_ADMINISTER_PERMISSION),
-  );
-  $items['admin/islandora/tools/islandora-oai/handler'] = array(
-    'title' => 'Islandora OAI Request Handler',
-    'description' => 'Configure the Islandora OAI request handler',
-    'file' => 'includes/handler.admin.inc',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('islandora_oai_handler_configuration_form'),
-    'access arguments' => array(ISLANDORA_OAI_ADMINISTER_PERMISSION),
-  );
-  $items['admin/islandora/tools/islandora-oai/handler/configure'] = array(
-    'title' => 'Settings',
-    'description' => 'Configure the Islandora OAI request handler',
-    'file' => 'includes/handler.admin.inc',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('islandora_oai_handler_configuration_form'),
-    'access arguments' => array(ISLANDORA_OAI_ADMINISTER_PERMISSION),
-    'type' => MENU_DEFAULT_LOCAL_TASK,
-    'weight' => 0,
-  );
-  $items['admin/islandora/tools/islandora-oai/handler/files'] = array(
-    'title' => 'File Management',
-    'description' => 'Manage the upload files for Islandora OAI',
-    'file' => 'includes/handler.admin.inc',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('islandora_oai_file_management_form'),
-    'access arguments' => array(ISLANDORA_OAI_ADMINISTER_PERMISSION),
-    'type' => MENU_LOCAL_TASK,
-    'weight' => 1,
-  );
   $items[\Drupal::config('islandora_oai.settings')->get('islandora_oai_path')] = array(
     'title' => 'OAI2',
     'page callback' => 'islandora_oai_parse_request',
