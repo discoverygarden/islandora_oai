@@ -9,7 +9,7 @@
  * Implements hook_install().
  */
 function islandora_oai_install() {
-  drupal_mkdir('public://islandora_oai_xsls');
+  \Drupal::service("file_system")->mkdir('public://islandora_oai_xsls');
 
   db_insert('islandora_oai_metadata_formats')
   ->fields(array(
@@ -167,7 +167,7 @@ function islandora_oai_uninstall() {
   foreach ($removal_files as $file) {
     @file_delete($file);
   }
-  drupal_rmdir($upload_path);
+  \Drupal::service("file_system")->rmdir($upload_path);
 
   $metadata_formats = array();
   $results = db_query('SELECT metadata_prefix FROM {islandora_oai_metadata_formats} ORDER BY name');
@@ -186,7 +186,12 @@ function islandora_oai_uninstall() {
   foreach ($metadata_formats as $metadata_prefix) {
     foreach ($variable_variables as $var) {
       $field = format_string($var, array('!format' => $metadata_prefix));
-      variable_del($field);
+      // @FIXME
+// // @FIXME
+// // The correct configuration object could not be determined. You'll need to
+// // rewrite this call manually.
+// variable_del($field);
+
     }
   }
   $variables = array(

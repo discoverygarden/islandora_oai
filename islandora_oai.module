@@ -21,8 +21,16 @@ function islandora_oai_permission() {
 }
 
 /**
- * Implements hook_menu().
+ * @FIXME
+ * This implementation of hook_menu() cannot be automatically converted because
+ * it contains logic (i.e., branching statements, function calls, object
+ * instantiation, etc.) You will need to convert it manually. Sorry!
+ *
+ * For more information on how to convert hook_menu() to Drupal 8's new routing
+ * and linking systems, see https://api.drupal.org/api/drupal/core%21includes%21menu.inc/group/menu/8
  */
+
+
 function islandora_oai_menu() {
   $items = array();
   $items['admin/islandora/tools/islandora-oai'] = array(
@@ -61,7 +69,7 @@ function islandora_oai_menu() {
     'type' => MENU_LOCAL_TASK,
     'weight' => 1,
   );
-  $items[variable_get('islandora_oai_path', 'oai2')] = array(
+  $items[\Drupal::config('islandora_oai.settings')->get('islandora_oai_path')] = array(
     'title' => 'OAI2',
     'page callback' => 'islandora_oai_parse_request',
     'file' => 'includes/request.inc',
@@ -104,7 +112,7 @@ function islandora_oai_islandora_oai_get_xsl_files() {
  * Implements hook_cron().
  */
 function islandora_oai_cron() {
-  $expire_seconds = variable_get('islandora_oai_expire_time', '86400');
+  $expire_seconds = \Drupal::config('islandora_oai.settings')->get('islandora_oai_expire_time');
   $expire_time = time() - $expire_seconds;
   db_query("DELETE FROM {islandora_oai_tokens} WHERE timestamp < :expire_time", array(':expire_time' => $expire_time));
 }
@@ -119,9 +127,9 @@ function islandora_oai_cron() {
  *   An array describing the requested action.
  */
 function islandora_oai_filter_function($request_type) {
-  $enabled_handler = variable_get('islandora_oai_request_handler', 'islandora_oai');
-  if (module_exists($enabled_handler)) {
-    $hooks = module_invoke_all(ISLANDORA_OAI_REQUEST_HANDLER_HOOK);
+  $enabled_handler = \Drupal::config('islandora_oai.settings')->get('islandora_oai_request_handler');
+  if (\Drupal::moduleHandler()->moduleExists($enabled_handler)) {
+    $hooks = \Drupal::moduleHandler()->invokeAll(ISLANDORA_OAI_REQUEST_HANDLER_HOOK);
     if (isset($hooks[$enabled_handler]['requests'][$request_type])) {
       return $hooks[$enabled_handler]['requests'][$request_type];
     }

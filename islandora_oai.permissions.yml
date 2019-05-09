@@ -1,0 +1,3 @@
+ISLANDORA_OAI_ADMINISTER_PERMISSION:
+  title: 'Administer Islandora OAI'
+  description: 'Administer Islandora OAI configuration.'

@@ -1,0 +1,40 @@
+islandora_oai.settings:
+  type: mapping
+  label: Settings
+  mapping:
+    islandora_oai_query_backend:
+      type: string
+    islandora_oai_append_dc_thumbnail:
+      type: boolean
+    islandora_oai_date_field:
+      type: string
+    islandora_oai_solr_remove_base_filters:
+      type: boolean
+    islandora_oai_content_model_field:
+      type: string
+    islandora_oai_solr_object_ancestors_field:
+      type: string
+    islandora_oai_max_size:
+      type: string
+    islandora_oai_collection_field:
+      type: string
+    islandora_oai_exclude_content_models:
+      type: string
+    islandora_oai_repository_name:
+      type: string
+    islandora_oai_path:
+      type: string
+    islandora_oai_repository_identifier:
+      type: string
+    islandora_oai_admin_email:
+      type: string
+    islandora_oai_expire_time:
+      type: string
+    islandora_oai_solr_state_field:
+      type: string
+    islandora_oai_solr_collection_description_field:
+      type: string
+    islandora_oai_request_handler:
+      type: string
+    islandora_oai_exclude_islandora_namespace:
+      type: boolean

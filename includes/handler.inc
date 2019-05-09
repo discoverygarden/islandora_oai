@@ -24,7 +24,7 @@
  * @see hook_islandora_oai_identify_request_handler()
  */
 function islandora_oai_retrieve_sets($params) {
-  switch (variable_get('islandora_oai_query_backend', 'sparql')) {
+  switch (\Drupal::config('islandora_oai.settings')->get('islandora_oai_query_backend')) {
     case 'sparql':
       $connection = islandora_get_tuque_connection();
       $records = array();
@@ -56,19 +56,34 @@ EOQ;
 
     case 'solr':
       $qp = new IslandoraSolrQueryProcessor();
-      $label_field = variable_get('islandora_solr_object_label_field', 'fgs_label_s');
+      // @FIXME
+// // @FIXME
+// // This looks like another module's variable. You'll need to rewrite this call
+// // to ensure that it uses the correct configuration object.
+// $label_field = variable_get('islandora_solr_object_label_field', 'fgs_label_s');
+
       $solr_params = array(
         'limit' => $params['max_records'],
         'sort' => $label_field,
       );
-      $qp->buildQuery(format_string('!field:"info:fedora/islandora:collectionCModel"', array(
-        '!field' => variable_get('islandora_solr_content_model_field', 'RELS_EXT_hasModel_uri_ms'),
-      )), $solr_params);
+      // @FIXME
+// // @FIXME
+// // This looks like another module's variable. You'll need to rewrite this call
+// // to ensure that it uses the correct configuration object.
+// $qp->buildQuery(format_string('!field:"info:fedora/islandora:collectionCModel"', array(
+//         '!field' => variable_get('islandora_solr_content_model_field', 'RELS_EXT_hasModel_uri_ms'),
+//       )), $solr_params);
+
       $qp->solrStart = $params['token']->deliveredrecords;
       $qp->executeQuery(FALSE);
       $total_records = $qp->islandoraSolrResult['response']['numFound'];
       $records = array();
-      $datastreams_field = variable_get('islandora_solr_datastream_id_field', 'fedora_datastreams_ms');
+      // @FIXME
+// // @FIXME
+// // This looks like another module's variable. You'll need to rewrite this call
+// // to ensure that it uses the correct configuration object.
+// $datastreams_field = variable_get('islandora_solr_datastream_id_field', 'fedora_datastreams_ms');
+
       foreach ($qp->islandoraSolrResult['response']['objects'] as $object) {
         $records[$object['PID']] = array(
           'pid' => $object['PID'],
@@ -119,7 +134,12 @@ function islandora_oai_get_set_dc_portion(AbstractDatastream $dc) {
  */
 function islandora_oai_object_response_xml($params) {
   $object = islandora_object_load($params['pid']);
-  $param = variable_get("islandora_oai_metadata_datastream_id_{$params['metadata_prefix']}", 'DC');
+  // @FIXME
+// // @FIXME
+// // The correct configuration object could not be determined. You'll need to
+// // rewrite this call manually.
+// $param = variable_get("islandora_oai_metadata_datastream_id_{$params['metadata_prefix']}", 'DC');
+
   if (isset($object[$param])) {
     $content = $object[$param]->content;
   }
@@ -129,7 +149,12 @@ function islandora_oai_object_response_xml($params) {
 
   $oai_output = NULL;
   if (!empty($content)) {
-    $self_transform_file = variable_get("islandora_oai_self_transform_file_{$params['metadata_prefix']}", 'default');
+    // @FIXME
+// // @FIXME
+// // The correct configuration object could not be determined. You'll need to
+// // rewrite this call manually.
+// $self_transform_file = variable_get("islandora_oai_self_transform_file_{$params['metadata_prefix']}", 'default');
+
     if ($self_transform_file != 'default') {
       $self_xslt = new XSLTProcessor();
       $self_xsl = new DOMDocument();
@@ -137,7 +162,7 @@ function islandora_oai_object_response_xml($params) {
       $self_input = new DOMDocument();
       $self_input->loadXML($content);
       $self_xslt->importStylesheet($self_xsl);
-      $self_transform_params = module_invoke_all('islandora_oai_self_transform_params', $object, $params['metadata_prefix']);
+      $self_transform_params = \Drupal::moduleHandler()->invokeAll('islandora_oai_self_transform_params', [$object, $params['metadata_prefix']]);
       foreach ($self_transform_params as $namespace_uri => $transform_params) {
         $self_xslt->setParameter($namespace_uri, $transform_params);
       }
@@ -147,7 +172,12 @@ function islandora_oai_object_response_xml($params) {
 
     $xslt = new XSLTProcessor();
     $xsl = new DOMDocument();
-    $file = variable_get("islandora_oai_transform_file_{$params['metadata_prefix']}", 'default');
+    // @FIXME
+// // @FIXME
+// // The correct configuration object could not be determined. You'll need to
+// // rewrite this call manually.
+// $file = variable_get("islandora_oai_transform_file_{$params['metadata_prefix']}", 'default');
+
     if ($file != 'default') {
       $xsl->load($file);
       $input = new DOMDocument();
@@ -168,91 +198,97 @@ function islandora_oai_object_response_xml($params) {
     }
   }
   // Jam the dc.identifier.thumbnail into the OAI_DC output.
-  if (isset($object['TN']) && variable_get('islandora_oai_append_dc_thumbnail', FALSE) && $params['metadata_prefix'] == 'oai_dc' && !empty($oai_output) && islandora_datastream_access(ISLANDORA_VIEW_OBJECTS, $object['TN'])) {
-    $thumb_url = url("islandora/object/{$object->id}/datastream/TN/view/{$object->label}.jpg", array(
-      'absolute' => TRUE,
-      'language' => NULL,
-    ));
+  if (isset($object['TN']) && \Drupal::config('islandora_oai.settings')->get('islandora_oai_append_dc_thumbnail') && $params['metadata_prefix'] == 'oai_dc' && !empty($oai_output) && islandora_datastream_access(ISLANDORA_VIEW_OBJECTS, $object['TN'])) {
+    // @FIXME
+// url() expects a route name or an external URI.
+// $thumb_url = url("islandora/object/{$object->id}/datastream/TN/view/{$object->label}.jpg", array(
+//       'absolute' => TRUE,
+//       'language' => NULL,
+//     ));
+
     $dom = new DOMDocument();
     $dom->loadXML($oai_output);
     $dom->documentElement->appendChild($dom->createElementNS('http://purl.org/dc/elements/1.1/', 'dc:identifier.thumbnail', $thumb_url));
     $oai_output = $dom->saveXML($dom->documentElement);
   }
 
-  if (variable_get("islandora_oai_include_object_links_for_{$params['metadata_prefix']}", FALSE) && !empty($oai_output)) {
-    // See if we need to XPath to a specific spot to add it.
-    $dom = new DOMDocument();
-    $dom->loadXML($oai_output);
-    $results = db_query('SELECT * FROM {islandora_oai_metadata_formats} WHERE BINARY metadata_prefix = :metadata_prefix', array(':metadata_prefix' => $params['metadata_prefix']));
-    $record = $results->fetchObject();
+  // @FIXME
+// // @FIXME
+// // The correct configuration object could not be determined. You'll need to
+// // rewrite this call manually.
+// if (variable_get("islandora_oai_include_object_links_for_{$params['metadata_prefix']}", FALSE) && !empty($oai_output)) {
+//     // See if we need to XPath to a specific spot to add it.
+//     $dom = new DOMDocument();
+//     $dom->loadXML($oai_output);
+//     $results = db_query('SELECT * FROM {islandora_oai_metadata_formats} WHERE BINARY metadata_prefix = :metadata_prefix', array(':metadata_prefix' => $params['metadata_prefix']));
+//     $record = $results->fetchObject();
+// 
+//     $object_url = url("islandora/object/{$object->id}", array(
+//       'absolute' => TRUE,
+//       'language' => NULL,
+//     ));
+//     $xpath = variable_get("islandora_oai_object_links_for_{$params['metadata_prefix']}_xpath", '');
+//     $field = variable_get("islandora_oai_object_links_for_{$params['metadata_prefix']}_field", '');
+//     $record_namespace = variable_get("islandora_oai_object_links_for_{$params['metadata_prefix']}_record_namespace", FALSE);
+// 
+//     if ($xpath) {
+//       $dom_xpath = new DOMXPath($dom);
+//       $dom_xpath->registerNamespace($record->record_prefix, $record->record_namespace);
+//       $dom_xpath->registerNamespace($record->metadata_prefix, $record->metadata_namespace);
+//       $elements = $dom_xpath->query($xpath);
+//       if ($elements->length == 0) {
+//         watchdog('islandora_oai', 'Unable to append object URL as could not find the element to XPath to for @pid. Error information: Metadata Prefix: @prefix, XPath: @xpath', array(
+//           '@pid' => $object->id,
+//           '@prefix' => $params['metadata_prefix'],
+//           '@xpath' => $xpath,
+//         ));
+//       }
+//       else {
+//         // If there's more than one element we'll just append to the first.
+//         foreach ($elements as $element) {
+//           if ($record_namespace) {
+//             $link_element = $dom->createElementNS($record->record_namespace, "{$record->record_prefix}:{$field}", $object_url);
+//           }
+//           else {
+//             $link_element = $dom->createElement($field, $object_url);
+//           }
+//           $element->appendChild($link_element);
+//           $oai_output = $dom->saveXML($dom->documentElement);
+//           break;
+//         }
+//       }
+//     }
+//     else {
+//       if ($record_namespace) {
+//         $link_element = $dom->createElementNS($record->record_namespace, "{$record->record_prefix}:{$field}", $object_url);
+//       }
+//       else {
+//         $link_element = $dom->createElement("$field", $object_url);
+//       }
+//       $dom->documentElement->appendChild($link_element);
+//       $oai_output = $dom->saveXML($dom->documentElement);
+//     }
+//   }
 
-    $object_url = url("islandora/object/{$object->id}", array(
-      'absolute' => TRUE,
-      'language' => NULL,
-    ));
-    $xpath = variable_get("islandora_oai_object_links_for_{$params['metadata_prefix']}_xpath", '');
-    $field = variable_get("islandora_oai_object_links_for_{$params['metadata_prefix']}_field", '');
-    $record_namespace = variable_get("islandora_oai_object_links_for_{$params['metadata_prefix']}_record_namespace", FALSE);
-
-    if ($xpath) {
-      $dom_xpath = new DOMXPath($dom);
-      $dom_xpath->registerNamespace($record->record_prefix, $record->record_namespace);
-      $dom_xpath->registerNamespace($record->metadata_prefix, $record->metadata_namespace);
-      $elements = $dom_xpath->query($xpath);
-      if ($elements->length == 0) {
-        watchdog('islandora_oai', 'Unable to append object URL as could not find the element to XPath to for @pid. Error information: Metadata Prefix: @prefix, XPath: @xpath', array(
-          '@pid' => $object->id,
-          '@prefix' => $params['metadata_prefix'],
-          '@xpath' => $xpath,
-        ));
-      }
-      else {
-        // If there's more than one element we'll just append to the first.
-        foreach ($elements as $element) {
-          if ($record_namespace) {
-            $link_element = $dom->createElementNS($record->record_namespace, "{$record->record_prefix}:{$field}", $object_url);
-          }
-          else {
-            $link_element = $dom->createElement($field, $object_url);
-          }
-          $element->appendChild($link_element);
-          $oai_output = $dom->saveXML($dom->documentElement);
-          break;
-        }
-      }
-    }
-    else {
-      if ($record_namespace) {
-        $link_element = $dom->createElementNS($record->record_namespace, "{$record->record_prefix}:{$field}", $object_url);
-      }
-      else {
-        $link_element = $dom->createElement("$field", $object_url);
-      }
-      $dom->documentElement->appendChild($link_element);
-      $oai_output = $dom->saveXML($dom->documentElement);
-    }
-  }
 
   // Transformation fails.
   if (empty($oai_output) && isset($object[$param])) {
-    watchdog('islandora_oai', 'The pid @pidname failed to transform on the @datastream datastream with the file @file.',
-      array(
+    \Drupal::logger('islandora_oai')->error('The pid @pidname failed to transform on the @datastream datastream with the file @file.', array(
         '@pidname' => $params['pid'],
         '@file' => $file,
         '@datastream' => $param,
-      ), WATCHDOG_ERROR);
+      ));
   }
   // Datastream doesn't exist.
   elseif (!isset($object[$param])) {
-    watchdog('islandora_oai', "The pid @pidname failed to transform on the @datastream datastream as the datastream doesn't exist.",
-      array(
+    \Drupal::logger('islandora_oai')->error("The pid @pidname failed to transform on the @datastream datastream as the datastream doesn't exist.", array(
         '@pidname' => $params['pid'],
         '@datastream' => $param,
-      ), WATCHDOG_ERROR);
+      ));
   }
 
   // Allow modules to alter the OAI-PMH record.
-  drupal_alter('islandora_oai_record', $oai_output, $params);
+  \Drupal::moduleHandler()->alter('islandora_oai_record', $oai_output, $params);
 
   return $oai_output;
 }
@@ -336,7 +372,7 @@ function islandora_oai_retrieve_records_or_identifiers($params) {
   $date_query = NULL;
 
   if ($from || $until) {
-    $field = variable_get('islandora_oai_date_field', 'fgs_lastModifiedDate_dt');
+    $field = \Drupal::config('islandora_oai.settings')->get('islandora_oai_date_field');
 
     if ($from) {
       $solr_from = islandora_oai_datetime_to_solr_time($from);
@@ -379,7 +415,7 @@ function islandora_oai_retrieve_records_or_identifiers($params) {
 function islandora_oai_construct_record_from_solr_response($solr_object) {
   return array(
     'pid' => $solr_object['PID'],
-    'date' => $solr_object['solr_doc'][variable_get('islandora_oai_date_field', 'fgs_lastModifiedDate_dt')],
+    'date' => $solr_object['solr_doc'][\Drupal::config('islandora_oai.settings')->get('islandora_oai_date_field')],
     'solr_doc' => $solr_object['solr_doc'],
   );
 }
@@ -458,7 +494,7 @@ function islandora_oai_query_solr($start = 0, $field = 'PID', $query = NULL, $se
   }
   $query_processor->buildQuery($query);
 
-  if (variable_get('islandora_oai_solr_remove_base_filters', FALSE)) {
+  if (\Drupal::config('islandora_oai.settings')->get('islandora_oai_solr_remove_base_filters')) {
     // Remove any base search filters.
     $query_processor->solrParams = islandora_solr_remove_base_filters($query_processor->solrParams);
   }
@@ -466,7 +502,7 @@ function islandora_oai_query_solr($start = 0, $field = 'PID', $query = NULL, $se
   // Build the fields to return.
   $fl_fields = islandora_oai_get_membership_array();
   $fl_fields[] = 'PID';
-  $fl_fields[] = variable_get('islandora_oai_date_field', 'fgs_lastModifiedDate_dt');
+  $fl_fields[] = \Drupal::config('islandora_oai.settings')->get('islandora_oai_date_field');
   $query_processor->solrParams['fl'] = implode(',', $fl_fields);
 
   // Build the filter array.
@@ -474,7 +510,7 @@ function islandora_oai_query_solr($start = 0, $field = 'PID', $query = NULL, $se
     $query_processor->solrParams['fq'][] = $date_query;
   }
   $exclude_content_models = islandora_oai_get_restricted_models();
-  $has_model = variable_get('islandora_oai_content_model_field', 'RELS_EXT_hasModel_uri_ms');
+  $has_model = \Drupal::config('islandora_oai.settings')->get('islandora_oai_content_model_field');
   foreach ($exclude_content_models as $content_model) {
     $content_model = trim($content_model);
     if ($content_model) {
@@ -496,7 +532,7 @@ function islandora_oai_query_solr($start = 0, $field = 'PID', $query = NULL, $se
     array_walk($sets, $repair_sets);
     $descendants = array();
 
-    switch (variable_get('islandora_oai_query_backend', 'sparql')) {
+    switch (\Drupal::config('islandora_oai.settings')->get('islandora_oai_query_backend')) {
       case 'sparql':
         // Get all descendant children (collection and objs) and add to the sets
         // array if not already existing.
@@ -518,7 +554,7 @@ function islandora_oai_query_solr($start = 0, $field = 'PID', $query = NULL, $se
 
       case 'solr':
         // Easier if we have ancestors.
-        $ancestors_field = variable_get('islandora_oai_solr_object_ancestors_field', '');
+        $ancestors_field = \Drupal::config('islandora_oai.settings')->get('islandora_oai_solr_object_ancestors_field');
         if (!empty($ancestors_field)) {
           foreach ($sets as $value) {
             $query_processor->solrParams['fq'][] = format_string('!ancestors_field:("!pid" OR "info:fedora/!pid")', array(
@@ -544,7 +580,7 @@ function islandora_oai_query_solr($start = 0, $field = 'PID', $query = NULL, $se
     }
   }
   $query_processor->solrStart = $start;
-  $query_processor->solrLimit = variable_get('islandora_oai_max_size', '20');
+  $query_processor->solrLimit = \Drupal::config('islandora_oai.settings')->get('islandora_oai_max_size');
   try {
     // XXX: Use POST as the filters for membership to a collection can be very
     // large.
@@ -602,13 +638,18 @@ function islandora_oai_query_solr_for_child_sets($parent, &$sets = array()) {
   $qp->solrParams['fl'] = 'PID';
   // Make sure we get everything but still filter on XACML permissions.
   $qp->solrParams['fq'] = array();
-  module_invoke('islandora_xacml_api', 'islandora_solr_query', $qp);
+  \Drupal::moduleHandler()->invoke('islandora_xacml_api', 'islandora_solr_query', [$qp]);
   // Set is part of the current collection.
   $qp->solrParams['fq'][] = islandora_oai_build_membership_fq_statement(array($parent));
   // Set is also a collection itself.
-  $qp->solrParams['fq'][] = format_string('!field:"info:fedora/islandora:collectionCModel"', array(
-    '!field' => variable_get('islandora_solr_content_model_field', 'RELS_EXT_hasModel_uri_ms'),
-  ));
+  // @FIXME
+// // @FIXME
+// // This looks like another module's variable. You'll need to rewrite this call
+// // to ensure that it uses the correct configuration object.
+// $qp->solrParams['fq'][] = format_string('!field:"info:fedora/islandora:collectionCModel"', array(
+//     '!field' => variable_get('islandora_solr_content_model_field', 'RELS_EXT_hasModel_uri_ms'),
+//   ));
+
 
   // XXX: Use POST as the filters for membership to a collection can be very
   // large.
@@ -636,97 +677,102 @@ function islandora_oai_query_solr_for_child_sets($parent, &$sets = array()) {
  *   The results of the RI query from Tuque.
  */
 function islandora_oai_query_ri_for_child_sets($set) {
-  global $user;
+  $user = \Drupal::currentUser();
   $user_name = $user->uid === 0 ? 'anonymous' : $user->name;
 
   $connection = islandora_get_tuque_connection();
   // Query sets from RI (SPARQL).
-  if (!variable_get('islandora_risearch_use_itql_when_necessary', TRUE)) {
-    $xacml_filter = module_invoke('islandora_xacml_api', 'islandora_basic_collection_get_query_filters');
-    $query = <<<EOQ
-SELECT ?child
-FROM <#ri>
-WHERE {
-  ?child <fedora-model:state> <fedora-model:Active> .
-  {
-    ?child <fedora-model:hasModel> <info:fedora/islandora:collectionCModel>
-  } UNION {
-    ?child <fedora-model:hasModel> [<fedora-model:hasModel> <info:fedora/islandora:collectionCModel>]
-  } .
-  {
-    ?child <fedora-rels-ext:isMemberOfCollection>+ <info:fedora/$set>
-  } UNION {
-    ?child <fedora-rels-ext:isMemberOf>+ <info:fedora/$set>
-  }
-  OPTIONAL {
-    ?child <http://islandora.ca/ontology/relsext#isViewableByRole> ?role .
-  }
-  OPTIONAL {
-    ?child <http://islandora.ca/ontology/relsext#isViewableByUser> ?user .
-  }
-  FILTER($xacml_filter)
-}
-EOQ;
-    $query_results = $connection->repository->ri->sparqlQuery($query);
-  }
-  // Query sets from RI (iTQL).
-  else {
-    $itql_query = '
-    select $child from <#ri>
-    where
-    (
-      (
-        (
-        $child <fedora-model:hasModel> $model
-        and $model <mulgara:is> <info:fedora/islandora:collectionCModel>
-        and $model <fedora-model:hasModel> <info:fedora/fedora-system:ContentModel-3.0>
-        )
-      or
-        (
-        $child <fedora-model:hasModel> $model
-        and $model <fedora-model:hasModel> <info:fedora/islandora:collectionCModel>
-        and $child <fedora-model:state> <info:fedora/fedora-system:def/model#Active>
-        )
-      minus $child <http://islandora.ca/ontology/relsext#isViewableByRole> $role
-      minus $child <http://islandora.ca/ontology/relsext#isViewableByUser> $user
-      )
-    or
-      (
-        (
-        $child <fedora-model:hasModel> $model
-        and $model <mulgara:is> <info:fedora/islandora:collectionCModel>
-        and $model <fedora-model:hasModel> <info:fedora/fedora-system:ContentModel-3.0>
-        )
-      or
-        (
-        $child <fedora-model:hasModel> $model
-        and $model <fedora-model:hasModel> <info:fedora/islandora:collectionCModel>
-        and $child <fedora-model:state> <info:fedora/fedora-system:def/model#Active>
-        )
-    and
-        (';
-    foreach ($user->roles as $role) {
-      $itql_query .= '$child <http://islandora.ca/ontology/relsext#isViewableByRole> ' . "'$role' or ";
-    }
-    $itql_query .= '$child <http://islandora.ca/ontology/relsext#isViewableByUser> ' . "'$user_name'" . ')';
-    $itql_query .= ')
-    )
-  and
-    (
-    walk
-      (
-        $parent <fedora-rels-ext:isMemberOfCollection><info:fedora/' . $set . '>
-         and $child <fedora-rels-ext:isMemberOfCollection> $parent
-      )
-    or
-    walk
-      (
-        $parent <fedora-rels-ext:isMemberOf><info:fedora/' . $set . '>
-        and $child <fedora-rels-ext:isMemberOf> $parent
-      )
-  )';
-    $query_results = $connection->repository->ri->itqlQuery($itql_query);
-  }
+  // @FIXME
+// // @FIXME
+// // This looks like another module's variable. You'll need to rewrite this call
+// // to ensure that it uses the correct configuration object.
+// if (!variable_get('islandora_risearch_use_itql_when_necessary', TRUE)) {
+//     $xacml_filter = module_invoke('islandora_xacml_api', 'islandora_basic_collection_get_query_filters');
+//     $query = <<<EOQ
+// SELECT ?child
+// FROM <#ri>
+// WHERE {
+//   ?child <fedora-model:state> <fedora-model:Active> .
+//   {
+//     ?child <fedora-model:hasModel> <info:fedora/islandora:collectionCModel>
+//   } UNION {
+//     ?child <fedora-model:hasModel> [<fedora-model:hasModel> <info:fedora/islandora:collectionCModel>]
+//   } .
+//   {
+//     ?child <fedora-rels-ext:isMemberOfCollection>+ <info:fedora/$set>
+//   } UNION {
+//     ?child <fedora-rels-ext:isMemberOf>+ <info:fedora/$set>
+//   }
+//   OPTIONAL {
+//     ?child <http://islandora.ca/ontology/relsext#isViewableByRole> ?role .
+//   }
+//   OPTIONAL {
+//     ?child <http://islandora.ca/ontology/relsext#isViewableByUser> ?user .
+//   }
+//   FILTER($xacml_filter)
+// }
+// EOQ;
+//     $query_results = $connection->repository->ri->sparqlQuery($query);
+//   }
+//   // Query sets from RI (iTQL).
+//   else {
+//     $itql_query = '
+//     select $child from <#ri>
+//     where
+//     (
+//       (
+//         (
+//         $child <fedora-model:hasModel> $model
+//         and $model <mulgara:is> <info:fedora/islandora:collectionCModel>
+//         and $model <fedora-model:hasModel> <info:fedora/fedora-system:ContentModel-3.0>
+//         )
+//       or
+//         (
+//         $child <fedora-model:hasModel> $model
+//         and $model <fedora-model:hasModel> <info:fedora/islandora:collectionCModel>
+//         and $child <fedora-model:state> <info:fedora/fedora-system:def/model#Active>
+//         )
+//       minus $child <http://islandora.ca/ontology/relsext#isViewableByRole> $role
+//       minus $child <http://islandora.ca/ontology/relsext#isViewableByUser> $user
+//       )
+//     or
+//       (
+//         (
+//         $child <fedora-model:hasModel> $model
+//         and $model <mulgara:is> <info:fedora/islandora:collectionCModel>
+//         and $model <fedora-model:hasModel> <info:fedora/fedora-system:ContentModel-3.0>
+//         )
+//       or
+//         (
+//         $child <fedora-model:hasModel> $model
+//         and $model <fedora-model:hasModel> <info:fedora/islandora:collectionCModel>
+//         and $child <fedora-model:state> <info:fedora/fedora-system:def/model#Active>
+//         )
+//     and
+//         (';
+//     foreach ($user->roles as $role) {
+//       $itql_query .= '$child <http://islandora.ca/ontology/relsext#isViewableByRole> ' . "'$role' or ";
+//     }
+//     $itql_query .= '$child <http://islandora.ca/ontology/relsext#isViewableByUser> ' . "'$user_name'" . ')';
+//     $itql_query .= ')
+//     )
+//   and
+//     (
+//     walk
+//       (
+//         $parent <fedora-rels-ext:isMemberOfCollection><info:fedora/' . $set . '>
+//          and $child <fedora-rels-ext:isMemberOfCollection> $parent
+//       )
+//     or
+//     walk
+//       (
+//         $parent <fedora-rels-ext:isMemberOf><info:fedora/' . $set . '>
+//         and $child <fedora-rels-ext:isMemberOf> $parent
+//       )
+//   )';
+//     $query_results = $connection->repository->ri->itqlQuery($itql_query);
+//   }
+
   return $query_results;
 }
 
@@ -741,7 +787,7 @@ function islandora_oai_get_membership_array() {
   $mini_cache = &drupal_static(__FUNCTION__, array());
 
   if (empty($mini_cache)) {
-    foreach (preg_split('/(\\r?\\n|\\r)+/', variable_get('islandora_oai_collection_field', "RELS_EXT_isMemberOfCollection_uri_ms\nRELS_EXT_isMemberOf_uri_ms")) as $spec) {
+    foreach (preg_split('/(\\r?\\n|\\r)+/', \Drupal::config('islandora_oai.settings')->get('islandora_oai_collection_field')) as $spec) {
       $mini_cache[] = trim($spec);
     }
     $mini_cache = array_filter($mini_cache);
@@ -757,7 +803,7 @@ function islandora_oai_get_membership_array() {
  *   returned from OAI requests.
  */
 function islandora_oai_get_restricted_models() {
-  $exclude_content_models = variable_get('islandora_oai_exclude_content_models', '');
+  $exclude_content_models = \Drupal::config('islandora_oai.settings')->get('islandora_oai_exclude_content_models');
   $cmodels = explode("\n", $exclude_content_models);
   $cmodels = array_map('trim', $cmodels);
   return array_filter($cmodels);
@@ -794,7 +840,7 @@ function islandora_oai_construct_sparql_query_for_sets($filters, $required = arr
   }
   ORDER BY ?title
 EOQ;
-  $optionals = (array) module_invoke('islandora_xacml_api', 'islandora_basic_collection_get_query_optionals', 'view');
+  $optionals = (array) \Drupal::moduleHandler()->invoke('islandora_xacml_api', 'islandora_basic_collection_get_query_optionals', ['view']);
   $filter_modules = array(
     'islandora_xacml_api',
     'islandora',
@@ -810,22 +856,27 @@ EOQ;
   }
 
   foreach ($filter_modules as $module) {
-    $filters = array_merge_recursive($filters, (array) module_invoke($module, 'islandora_basic_collection_get_query_filters', 'view'));
+    $filters = array_merge_recursive($filters, (array) \Drupal::moduleHandler()->invoke($module, 'islandora_basic_collection_get_query_filters', ['view']));
   }
 
   // If the user is choosing to restrict things within the Islandora namespace
   // the filter needs to be modified as the islandora namespace is always
   // allowed by default.
-  if (variable_get('islandora_namespace_restriction_enforced', FALSE) && variable_get('islandora_oai_exclude_islandora_namespace', FALSE)) {
-    module_load_include('inc', 'islandora', 'includes/utilities');
-    // This is somewhat of duplicated code but needs to be done so we remove
-    // only the "islandora" namespace.
-    $namespace_array = islandora_get_allowed_namespaces();
-    $key = array_keys($namespace_array, 'islandora');
-    $namespace_array = array_diff_key($namespace_array, array_flip($key));
-    $namespace_sparql = implode('|', $namespace_array);
-    $filters['islandora_namespace_restrictions'] = format_string('regex(str(?object), "info:fedora/(!namespaces):")', array('!namespaces' => $namespace_sparql));
-  }
+  // @FIXME
+// // @FIXME
+// // This looks like another module's variable. You'll need to rewrite this call
+// // to ensure that it uses the correct configuration object.
+// if (variable_get('islandora_namespace_restriction_enforced', FALSE) && variable_get('islandora_oai_exclude_islandora_namespace', FALSE)) {
+//     module_load_include('inc', 'islandora', 'includes/utilities');
+//     // This is somewhat of duplicated code but needs to be done so we remove
+//     // only the "islandora" namespace.
+//     $namespace_array = islandora_get_allowed_namespaces();
+//     $key = array_keys($namespace_array, 'islandora');
+//     $namespace_array = array_diff_key($namespace_array, array_flip($key));
+//     $namespace_sparql = implode('|', $namespace_array);
+//     $filters['islandora_namespace_restrictions'] = format_string('regex(str(?object), "info:fedora/(!namespaces):")', array('!namespaces' => $namespace_sparql));
+//   }
+
   $filter_map = function ($filter) {
     return "FILTER($filter)";
   };

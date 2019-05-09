@@ -309,7 +309,7 @@ function islandora_oai_get_record(&$writer, $args) {
         // Replace the first _ with a : so we have a pid.
         $val = preg_replace('/_/', ':', $val, 1);
         // Strip off the the prefix such that we are left with a Fedora pid.
-        $id_prefix = trim(variable_get('islandora_oai_repository_identifier', 'drupal-site.org'));
+        $id_prefix = trim(\Drupal::config('islandora_oai.settings')->get('islandora_oai_repository_identifier'));
         $identifier = str_replace('oai:' . $id_prefix . ':', '', $val);
         break;
 
@@ -455,11 +455,14 @@ function islandora_oai_identify(&$writer, $args) {
 
   $earliest_datestamp = islandora_oai_get_earliest_datetime();
   $writer->startElement('Identify');
-  $writer->writeElement('repositoryName', variable_get('islandora_oai_repository_name', 'Repository'));
-  $identify_base_url = url(variable_get('islandora_oai_path', 'oai2'), array('absolute' => TRUE));
+  $writer->writeElement('repositoryName', \Drupal::config('islandora_oai.settings')->get('islandora_oai_repository_name'));
+  // @FIXME
+// url() expects a route name or an external URI.
+// $identify_base_url = url(\Drupal::config('islandora_oai.settings')->get('islandora_oai_path'), array('absolute' => TRUE));
+
   $writer->writeElement('baseURL', $identify_base_url);
   $writer->writeElement('protocolVersion', '2.0');
-  $writer->writeElement('adminEmail', variable_get('islandora_oai_admin_email', 'N/A'));
+  $writer->writeElement('adminEmail', \Drupal::config('islandora_oai.settings')->get('islandora_oai_admin_email'));
   $writer->writeElement('earliestDatestamp', $earliest_datestamp);
   $writer->writeElement('deletedRecord', 'no');
   $writer->writeElement('granularity', 'YYYY-MM-DDThh:mm:ssZ');
@@ -475,9 +478,9 @@ function islandora_oai_identify(&$writer, $args) {
   $writer->writeAttribute('xsi:schemaLocation', 'http://www.openarchives.org/OAI/2.0/oai-identifier
     http://www.openarchives.org/OAI/2.0/oai-identifier.xsd');
   $writer->writeElement('scheme', 'oai');
-  $writer->writeElement('repositoryIdentifier', trim(variable_get('islandora_oai_repository_identifier', 'drupal-site.org')));
+  $writer->writeElement('repositoryIdentifier', trim(\Drupal::config('islandora_oai.settings')->get('islandora_oai_repository_identifier')));
   $writer->writeElement('delimiter', ':');
-  $writer->writeElement('sampleIdentifier', 'oai:' . trim(variable_get('islandora_oai_repository_identifier', 'drupal-site.org') . ':123'));
+  $writer->writeElement('sampleIdentifier', 'oai:' . trim(\Drupal::config('islandora_oai.settings')->get('islandora_oai_repository_identifier') . ':123'));
   $writer->endElement();
   $writer->endElement();
 }
@@ -491,7 +494,7 @@ function islandora_oai_identify(&$writer, $args) {
 function islandora_oai_get_earliest_datetime() {
   static $earliest_datestamp;
   if (!$earliest_datestamp) {
-    switch (variable_get('islandora_oai_query_backend', 'sparql')) {
+    switch (\Drupal::config('islandora_oai.settings')->get('islandora_oai_query_backend')) {
       case 'sparql':
         $query = <<<EOQ
 SELECT ?object ?date
@@ -512,7 +515,7 @@ EOQ;
         break;
 
       case 'solr':
-        $date_field = variable_get('islandora_oai_date_field', 'fgs_lastModifiedDate_dt');
+        $date_field = \Drupal::config('islandora_oai.settings')->get('islandora_oai_date_field');
         $qp = new IslandoraSolrQueryProcessor();
         $params = array(
           'sort' => "$date_field asc",
@@ -520,7 +523,7 @@ EOQ;
         );
         $qp->buildQuery(format_string('!date_field:* AND !state_field:Active', array(
           '!date_field' => $date_field,
-          '!state_field' => variable_get('islandora_oai_solr_state_field', 'fgs_state_s'),
+          '!state_field' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_solr_state_field'),
         )));
         $qp->executeQuery(FALSE);
         $result = reset($qp->islandoraSolrResult['response']['objects']);
@@ -548,8 +551,8 @@ EOQ;
 function islandora_oai_list_id_rec(&$writer, $args, $list_rec = FALSE) {
   $query_args = array();
   // Max records to send in one response.
-  $max_records = variable_get('islandora_oai_max_size', '20');
-  $expire_seconds = variable_get('islandora_oai_expire_time', '86400');
+  $max_records = \Drupal::config('islandora_oai.settings')->get('islandora_oai_max_size');
+  $expire_seconds = \Drupal::config('islandora_oai.settings')->get('islandora_oai_expire_time');
   $expire_time = gmstrftime('%Y-%m-%dT%TZ', time() + $expire_seconds);
   // Handle error and set variables.
   foreach ($args as $key => $val) {
@@ -646,7 +649,7 @@ function islandora_oai_list_id_rec(&$writer, $args, $list_rec = FALSE) {
     if (!is_object($token)) {
       return FALSE;
     }
-    elseif ($token->timestamp < (time() - variable_get('islandora_oai_expire_time', '86400'))) {
+    elseif ($token->timestamp < (time() - \Drupal::config('islandora_oai.settings')->get('islandora_oai_expire_time'))) {
       islandora_oai_add_error('badResumptionToken', '', $resumption_token);
       return FALSE;
     }
@@ -766,7 +769,7 @@ function islandora_oai_list_id_rec(&$writer, $args, $list_rec = FALSE) {
 function islandora_oai_build_record_response(&$writer, $record, $full_record = FALSE, $metadata_prefix = 'oai_dc') {
   $identifier = $record['pid'];
   $identifier = str_replace(':', '_', $identifier);
-  $repo_id = variable_get('islandora_oai_repository_identifier', 'drupal-site.org');
+  $repo_id = \Drupal::config('islandora_oai.settings')->get('islandora_oai_repository_identifier');
   $date = new DateTime((string) $record['date'], new DateTimeZone('UTC'));
   $date_stamp = $date->format("Y-m-d\TH:i:s\Z");
 
@@ -899,7 +902,7 @@ function islandora_oai_list_metadata_formats(&$writer, $args) {
   foreach ($args as $key => $val) {
     switch ($key) {
       case 'identifier':
-        $repo_id = trim(variable_get('islandora_oai_repository_identifier', 'drupal-site.org'));
+        $repo_id = trim(\Drupal::config('islandora_oai.settings')->get('islandora_oai_repository_identifier'));
         $identifier = str_replace('oai:' . $repo_id . ':', '', $val);
 
         $pid_query = str_replace('_', ':', $identifier);
@@ -979,8 +982,8 @@ function islandora_oai_list_sets($writer, $args) {
   module_load_include('inc', 'islandora', 'includes/utilities');
 
   // Max records to send in one response.
-  $max_records = variable_get('islandora_oai_max_size', '20');
-  $expire_seconds = variable_get('islandora_oai_expire_time', '86400');
+  $max_records = \Drupal::config('islandora_oai.settings')->get('islandora_oai_max_size');
+  $expire_seconds = \Drupal::config('islandora_oai.settings')->get('islandora_oai_expire_time');
   $expire_time = gmstrftime('%Y-%m-%dT%TZ', time() + $expire_seconds);
   // @TODO: Add support for descriptive metadata for sets?
   // http://www.openarchives.org/OAI/openarchivesprotocol.html#ListSets.

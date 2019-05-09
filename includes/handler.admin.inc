@@ -29,62 +29,70 @@ function islandora_oai_handler_configuration_form($form, &$form_state) {
     '#type' => 'textfield',
     '#title' => t('Solr Date Field'),
     '#size' => '50',
-    '#default_value' => variable_get('islandora_oai_date_field', 'fgs_lastModifiedDate_dt'),
+    '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_date_field'),
     '#description' => t('The Solr field containing the date to be used.'),
   );
   $form['islandora_oai_configuration']['islandora_oai_collection_field'] = array(
     '#type' => 'textarea',
     '#title' => t('Solr RELS-EXT Collection Field'),
     '#size' => '50',
-    '#default_value' => variable_get('islandora_oai_collection_field', "RELS_EXT_isMemberOfCollection_uri_ms\nRELS_EXT_isMemberOf_uri_ms"),
+    '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_collection_field'),
     '#description' => t('The Solr fields used to determine what collection, if any, an object is a member of.'),
   );
   $form['islandora_oai_configuration']['islandora_oai_content_model_field'] = array(
     '#type' => 'textfield',
     '#title' => t('Solr Content Model Field'),
     '#size' => '50',
-    '#default_value' => variable_get('islandora_oai_content_model_field', 'RELS_EXT_hasModel_uri_ms'),
+    '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_content_model_field'),
     '#description' => t("Field which RELS-EXT datastreams use to define an object's content model."),
   );
   $form['islandora_oai_configuration']['islandora_oai_solr_remove_base_filters'] = array(
     '#type' => 'checkbox',
     '#title' => t('Remove base Solr filters'),
     '#description' => t('This option removes your configured Solr base filters from these queries. If you want your filters to be applied even though they could affect which objects are returned in the OAI results, uncheck this option.'),
-    '#default_value' => variable_get('islandora_oai_solr_remove_base_filters', FALSE),
+    '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_solr_remove_base_filters'),
   );
   $form['islandora_oai_configuration']['islandora_oai_exclude_content_models'] = array(
     '#type' => 'textarea',
     '#title' => t('Excluded Content Models'),
     '#size' => '50',
-    '#default_value' => variable_get('islandora_oai_exclude_content_models', ''),
+    '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_exclude_content_models'),
     '#description' => t('By default, all objects are visible to OAI metadata harvesters. This field allows you to exclude all objects with a certain content model, e.g "islandora:collectionCModel" to exclude all objects with the Islandora Core Collection content model. Content models are separated by line. NOTE: If islandora:collectionCModel is added, it will break the ListSets verb.'),
   );
-  $form['islandora_oai_configuration']['islandora_oai_exclude_islandora_namespace'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Exclude objects within the "islandora" namespace?'),
-    '#default_value' => variable_get('islandora_oai_exclude_islandora_namespace', FALSE),
-    '#description' => t('If this option is selected, note that restrictions within the <a href="@solr_url">Islandora Solr Search</a> module must match up with those within the core <a href="@islandora_url">Islandora</a> module.', array(
-      '@solr_url' => url('admin/islandora/search/islandora_solr/settings'),
-      '@islandora_url' => url('admin/islandora/configure'),
-    )),
-  );
+  // @FIXME
+// url() expects a route name or an external URI.
+// $form['islandora_oai_configuration']['islandora_oai_exclude_islandora_namespace'] = array(
+//     '#type' => 'checkbox',
+//     '#title' => t('Exclude objects within the "islandora" namespace?'),
+//     '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_exclude_islandora_namespace'),
+//     '#description' => t('If this option is selected, note that restrictions within the <a href="@solr_url">Islandora Solr Search</a> module must match up with those within the core <a href="@islandora_url">Islandora</a> module.', array(
+//       '@solr_url' => url('admin/islandora/search/islandora_solr/settings'),
+//       '@islandora_url' => url('admin/islandora/configure'),
+//     )),
+//   );
+
   $form['islandora_oai_configuration']['islandora_oai_append_dc_thumbnail'] = array(
     '#type' => 'checkbox',
     '#title' => t('Append on dc.identifier.thumbnail to OAI_DC requests?'),
-    '#default_value' => variable_get('islandora_oai_append_dc_thumbnail', FALSE),
+    '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_append_dc_thumbnail'),
     '#description' => t("If this option is selected, a link to an object's thumbnail will be added to OAI_DC responses."),
   );
-  if (!variable_get('islandora_namespace_restriction_enforced', FALSE)) {
-    $form['islandora_oai_configuration']['islandora_oai_exclude_islandora_namespace']['#disabled'] = TRUE;
-    $form['islandora_oai_configuration']['islandora_oai_exclude_islandora_namespace']['#description'] = t('Excluding the Islandora namespace is only possible when namespace restrictions are enabled within the <a href="@islandora_url">Islandora</a> module.', array(
-      '@islandora_url' => url('admin/islandora/configure'),
-    ));
-  }
+  // @FIXME
+// // @FIXME
+// // This looks like another module's variable. You'll need to rewrite this call
+// // to ensure that it uses the correct configuration object.
+// if (!variable_get('islandora_namespace_restriction_enforced', FALSE)) {
+//     $form['islandora_oai_configuration']['islandora_oai_exclude_islandora_namespace']['#disabled'] = TRUE;
+//     $form['islandora_oai_configuration']['islandora_oai_exclude_islandora_namespace']['#description'] = t('Excluding the Islandora namespace is only possible when namespace restrictions are enabled within the <a href="@islandora_url">Islandora</a> module.', array(
+//       '@islandora_url' => url('admin/islandora/configure'),
+//     ));
+//   }
+
   $metadata_format_options = array();
   $metadata_formats = array();
   $results = db_query('SELECT * FROM {islandora_oai_metadata_formats} ORDER BY name');
   foreach ($results as $row) {
-    $metadata_format_options[$row->name] = drupal_strtoupper($row->name);
+    $metadata_format_options[$row->name] = \Drupal\Component\Utility\Unicode::strtoupper($row->name);
     $metadata_formats[$row->name] = $row;
   }
 
@@ -108,13 +116,23 @@ function islandora_oai_handler_configuration_form($form, &$form_state) {
     '#options' => $metadata_format_options,
   );
 
-  $oai_invoke_files = module_invoke_all('islandora_oai_get_xsl_files');
+  $oai_invoke_files = \Drupal::moduleHandler()->invokeAll('islandora_oai_get_xsl_files');
   $transform_options = array('default' => t('No transformation selected'));
   $transform_options = array_merge($transform_options, $oai_invoke_files);
 
   foreach ($metadata_formats as $format) {
-    $default_transform = variable_get("islandora_oai_transform_file_$format->name", 'default');
-    $default_self_transform = variable_get("islandora_oai_self_transform_file_$format->name", 'default');
+    // @FIXME
+// // @FIXME
+// // The correct configuration object could not be determined. You'll need to
+// // rewrite this call manually.
+// $default_transform = variable_get("islandora_oai_transform_file_$format->name", 'default');
+
+    // @FIXME
+// // @FIXME
+// // The correct configuration object could not be determined. You'll need to
+// // rewrite this call manually.
+// $default_self_transform = variable_get("islandora_oai_self_transform_file_$format->name", 'default');
+
     $form['islandora_oai_metadata'][$format->name]['islandora_oai_metadata_prefix'] = array(
       '#type' => 'item',
       '#title' => t('Metadata Prefix'),
@@ -148,65 +166,90 @@ function islandora_oai_handler_configuration_form($form, &$form_state) {
         ),
       ),
     );
-    $form['islandora_oai_metadata'][$format->metadata_prefix]["islandora_oai_include_object_links_for_$format->metadata_prefix"] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Force include a link to the object within Islandora?'),
-      '#description' => t('This is used in cases where metadata may not have links or Handles that point back to the object in the repository. Services like WorldCat expect a linkback to the object. This functionality can be achieved using XSLTs as well.'),
-      '#states' => array(
-        'visible' => array(
-          ':input[name="islandora_oai_metadata_format"]' => array('value' => $format->name),
-        ),
-      ),
-      '#default_value' => variable_get("islandora_oai_include_object_links_for_$format->metadata_prefix", FALSE),
-    );
-    $form['islandora_oai_metadata'][$format->metadata_prefix]["islandora_oai_object_links_for_{$format->metadata_prefix}_xpath"] = array(
-      '#type' => 'textfield',
-      '#title' => t('XPath'),
-      '#description' => t('Optionally include an XPath to append the link under. Leave empty to append under the root element.'),
-      '#states' => array(
-        'visible' => array(
-          ':input[name="islandora_oai_metadata_format"]' => array('value' => $format->name),
-          ":input[name='islandora_oai_metadata[{$format->metadata_prefix}][islandora_oai_include_object_links_for_{$format->metadata_prefix}]']" => array('checked' => TRUE),
-        ),
-      ),
-      '#default_value' => variable_get("islandora_oai_object_links_for_{$format->metadata_prefix}_xpath", ''),
-    );
-    $form['islandora_oai_metadata'][$format->metadata_prefix]["islandora_oai_object_links_for_{$format->metadata_prefix}_field"] = array(
-      '#type' => 'textfield',
-      '#title' => t('Field'),
-      '#description' => t('The name of the field to append the link into. Ex: For dc:identifier, just enter identifier.'),
-      '#states' => array(
-        'visible' => array(
-          ':input[name="islandora_oai_metadata_format"]' => array('value' => $format->name),
-          ":input[name='islandora_oai_metadata[{$format->metadata_prefix}][islandora_oai_include_object_links_for_{$format->metadata_prefix}]']" => array('checked' => TRUE),
-        ),
-      ),
-      '#default_value' => variable_get("islandora_oai_object_links_for_{$format->metadata_prefix}_field", ''),
-    );
-    $form['islandora_oai_metadata'][$format->metadata_prefix]["islandora_oai_object_links_for_{$format->metadata_prefix}_record_namespace"] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Include record namespace?'),
-      '#description' => t('This will include the record namespace and prefix for the field listed above. If the default namespace is declared in your metadata avoid using this.'),
-      '#states' => array(
-        'visible' => array(
-          ':input[name="islandora_oai_metadata_format"]' => array('value' => $format->name),
-          ":input[name='islandora_oai_metadata[{$format->metadata_prefix}][islandora_oai_include_object_links_for_{$format->metadata_prefix}]']" => array('checked' => TRUE),
-        ),
-      ),
-      '#default_value' => variable_get("islandora_oai_object_links_for_{$format->metadata_prefix}_record_namespace", FALSE),
-    );
-    $form['islandora_oai_metadata']['islandora_oai_options']["islandora_oai_metadata_datastream_id_$format->metadata_prefix"] = array(
-      '#type' => 'textfield',
-      '#size' => 30,
-      '#title' => 'Metadata Datastream ID',
-      '#default_value' => variable_get("islandora_oai_metadata_datastream_id_$format->metadata_prefix", 'DC'),
-      '#description' => t('(Note that this is case-sensitive)'),
-      '#states' => array(
-        'visible' => array(
-          ':input[name="islandora_oai_metadata_format"]' => array('value' => $format->name),
-        ),
-      ),
-    );
+    // @FIXME
+// // @FIXME
+// // The correct configuration object could not be determined. You'll need to
+// // rewrite this call manually.
+// $form['islandora_oai_metadata'][$format->metadata_prefix]["islandora_oai_include_object_links_for_$format->metadata_prefix"] = array(
+//       '#type' => 'checkbox',
+//       '#title' => t('Force include a link to the object within Islandora?'),
+//       '#description' => t('This is used in cases where metadata may not have links or Handles that point back to the object in the repository. Services like WorldCat expect a linkback to the object. This functionality can be achieved using XSLTs as well.'),
+//       '#states' => array(
+//         'visible' => array(
+//           ':input[name="islandora_oai_metadata_format"]' => array('value' => $format->name),
+//         ),
+//       ),
+//       '#default_value' => variable_get("islandora_oai_include_object_links_for_$format->metadata_prefix", FALSE),
+//     );
+
+    // @FIXME
+// // @FIXME
+// // The correct configuration object could not be determined. You'll need to
+// // rewrite this call manually.
+// $form['islandora_oai_metadata'][$format->metadata_prefix]["islandora_oai_object_links_for_{$format->metadata_prefix}_xpath"] = array(
+//       '#type' => 'textfield',
+//       '#title' => t('XPath'),
+//       '#description' => t('Optionally include an XPath to append the link under. Leave empty to append under the root element.'),
+//       '#states' => array(
+//         'visible' => array(
+//           ':input[name="islandora_oai_metadata_format"]' => array('value' => $format->name),
+//           ":input[name='islandora_oai_metadata[{$format->metadata_prefix}][islandora_oai_include_object_links_for_{$format->metadata_prefix}]']" => array('checked' => TRUE),
+//         ),
+//       ),
+//       '#default_value' => variable_get("islandora_oai_object_links_for_{$format->metadata_prefix}_xpath", ''),
+//     );
+
+    // @FIXME
+// // @FIXME
+// // The correct configuration object could not be determined. You'll need to
+// // rewrite this call manually.
+// $form['islandora_oai_metadata'][$format->metadata_prefix]["islandora_oai_object_links_for_{$format->metadata_prefix}_field"] = array(
+//       '#type' => 'textfield',
+//       '#title' => t('Field'),
+//       '#description' => t('The name of the field to append the link into. Ex: For dc:identifier, just enter identifier.'),
+//       '#states' => array(
+//         'visible' => array(
+//           ':input[name="islandora_oai_metadata_format"]' => array('value' => $format->name),
+//           ":input[name='islandora_oai_metadata[{$format->metadata_prefix}][islandora_oai_include_object_links_for_{$format->metadata_prefix}]']" => array('checked' => TRUE),
+//         ),
+//       ),
+//       '#default_value' => variable_get("islandora_oai_object_links_for_{$format->metadata_prefix}_field", ''),
+//     );
+
+    // @FIXME
+// // @FIXME
+// // The correct configuration object could not be determined. You'll need to
+// // rewrite this call manually.
+// $form['islandora_oai_metadata'][$format->metadata_prefix]["islandora_oai_object_links_for_{$format->metadata_prefix}_record_namespace"] = array(
+//       '#type' => 'checkbox',
+//       '#title' => t('Include record namespace?'),
+//       '#description' => t('This will include the record namespace and prefix for the field listed above. If the default namespace is declared in your metadata avoid using this.'),
+//       '#states' => array(
+//         'visible' => array(
+//           ':input[name="islandora_oai_metadata_format"]' => array('value' => $format->name),
+//           ":input[name='islandora_oai_metadata[{$format->metadata_prefix}][islandora_oai_include_object_links_for_{$format->metadata_prefix}]']" => array('checked' => TRUE),
+//         ),
+//       ),
+//       '#default_value' => variable_get("islandora_oai_object_links_for_{$format->metadata_prefix}_record_namespace", FALSE),
+//     );
+
+    // @FIXME
+// // @FIXME
+// // The correct configuration object could not be determined. You'll need to
+// // rewrite this call manually.
+// $form['islandora_oai_metadata']['islandora_oai_options']["islandora_oai_metadata_datastream_id_$format->metadata_prefix"] = array(
+//       '#type' => 'textfield',
+//       '#size' => 30,
+//       '#title' => 'Metadata Datastream ID',
+//       '#default_value' => variable_get("islandora_oai_metadata_datastream_id_$format->metadata_prefix", 'DC'),
+//       '#description' => t('(Note that this is case-sensitive)'),
+//       '#states' => array(
+//         'visible' => array(
+//           ':input[name="islandora_oai_metadata_format"]' => array('value' => $format->name),
+//         ),
+//       ),
+//     );
+
     $form['islandora_oai_metadata']['islandora_oai_options']["islandora_oai_transform_file_$format->metadata_prefix"] = array(
       '#type' => 'select',
       '#title' => t('File to use for transforming @metadata_prefix', array('@metadata_prefix' => $format->metadata_prefix)),
@@ -273,16 +316,21 @@ function islandora_oai_handler_configuration_form_validate($form, &$form_state) 
  *   An array containing the Drupal form state.
  */
 function islandora_oai_handler_configuration_form_submit($form, &$form_state) {
-  variable_set('islandora_oai_collection_field', $form_state['values']['islandora_oai_configuration']['islandora_oai_collection_field']);
-  variable_set('islandora_oai_content_model_field', $form_state['values']['islandora_oai_configuration']['islandora_oai_content_model_field']);
-  variable_set('islandora_oai_exclude_content_models', $form_state['values']['islandora_oai_configuration']['islandora_oai_exclude_content_models']);
-  variable_set('islandora_oai_date_field', $form_state['values']['islandora_oai_configuration']['islandora_oai_date_field']);
-  variable_set('islandora_oai_exclude_islandora_namespace', $form_state['values']['islandora_oai_configuration']['islandora_oai_exclude_islandora_namespace']);
-  variable_set('islandora_oai_append_dc_thumbnail', $form_state['values']['islandora_oai_configuration']['islandora_oai_append_dc_thumbnail']);
-  variable_set('islandora_oai_solr_remove_base_filters', $form_state['values']['islandora_oai_configuration']['islandora_oai_solr_remove_base_filters']);
+  \Drupal::configFactory()->getEditable('islandora_oai.settings')->set('islandora_oai_collection_field', $form_state['values']['islandora_oai_configuration']['islandora_oai_collection_field'])->save();
+  \Drupal::configFactory()->getEditable('islandora_oai.settings')->set('islandora_oai_content_model_field', $form_state['values']['islandora_oai_configuration']['islandora_oai_content_model_field'])->save();
+  \Drupal::configFactory()->getEditable('islandora_oai.settings')->set('islandora_oai_exclude_content_models', $form_state['values']['islandora_oai_configuration']['islandora_oai_exclude_content_models'])->save();
+  \Drupal::configFactory()->getEditable('islandora_oai.settings')->set('islandora_oai_date_field', $form_state['values']['islandora_oai_configuration']['islandora_oai_date_field'])->save();
+  \Drupal::configFactory()->getEditable('islandora_oai.settings')->set('islandora_oai_exclude_islandora_namespace', $form_state['values']['islandora_oai_configuration']['islandora_oai_exclude_islandora_namespace'])->save();
+  \Drupal::configFactory()->getEditable('islandora_oai.settings')->set('islandora_oai_append_dc_thumbnail', $form_state['values']['islandora_oai_configuration']['islandora_oai_append_dc_thumbnail'])->save();
+  \Drupal::configFactory()->getEditable('islandora_oai.settings')->set('islandora_oai_solr_remove_base_filters', $form_state['values']['islandora_oai_configuration']['islandora_oai_solr_remove_base_filters'])->save();
   // Loop through our transform options.
   foreach ($form_state['values']['islandora_oai_metadata']['islandora_oai_options'] as $key => $value) {
-    variable_set($key, $value);
+    // @FIXME
+// // @FIXME
+// // The correct configuration object could not be determined. You'll need to
+// // rewrite this call manually.
+// variable_set($key, $value);
+
   }
   // Loop through object linking.
   $metadata_formats = array();
@@ -292,7 +340,12 @@ function islandora_oai_handler_configuration_form_submit($form, &$form_state) {
   }
   foreach ($metadata_formats as $format) {
     foreach ($form_state['values']['islandora_oai_metadata'][$format] as $key => $value) {
-      variable_set($key, trim($value));
+      // @FIXME
+// // @FIXME
+// // The correct configuration object could not be determined. You'll need to
+// // rewrite this call manually.
+// variable_set($key, trim($value));
+
     }
   }
   drupal_set_message(t('The configuration options have been saved.'));
@@ -316,10 +369,13 @@ function islandora_oai_file_management_form($form, &$form_state) {
   $uploaded_files = file_scan_directory($upload_path, '/.*\.xslt?$/');
 
   foreach ($uploaded_files as $up_file) {
-    $oai_uploaded_files[$up_file->uri] = array(
-      $up_file->filename,
-      l(t('download'), file_create_url($up_file->uri)),
-    );
+    // @FIXME
+// l() expects a Url object, created from a route name or external URI.
+// $oai_uploaded_files[$up_file->uri] = array(
+//       $up_file->filename,
+//       l(t('download'), file_create_url($up_file->uri)),
+//     );
+
   }
   ksort($oai_uploaded_files);
   $form['islandora_oai_files'] = array(
@@ -414,7 +470,7 @@ function islandora_oai_file_management_form_submit($form, &$form_state) {
     $deleted_count++;
   }
   if ($deleted_count > 0) {
-    drupal_set_message(format_plural($deleted_count,
+    drupal_set_message(\Drupal::translation()->formatPlural($deleted_count,
       'Successfully deleted 1 file!',
       'Successfully deleted @count files!'
     ));

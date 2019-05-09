@@ -160,7 +160,7 @@ function hook_islandora_oai_self_transform_params($object, $metadata_prefix) {
  *   -pid (string): The pid of the object described in the record.
  */
 function hook_islandora_oai_record_alter(&$oai_record, &$params) {
-  if (ip_address() == '123.456.789.789' && $params['metadata_prefix'] == 'oai_dc') {
+  if (\Drupal::request()->getClientIp() == '123.456.789.789' && $params['metadata_prefix'] == 'oai_dc') {
     $rights_value = "We want a custom rights statement.";
     $rights_element = "<dc:rights>" . $rights_value . "</dc:rights>";
 
