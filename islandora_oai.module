@@ -89,7 +89,7 @@ function islandora_oai_islandora_oai_identify_request_handler() {
     'islandora_oai' => [
       'label' => t('Islandora OAI'),
       'description' => t('Provides a standard OAI implementation for Islandora.'),
-      'configuration' => 'admin/islandora/tools/islandora-oai/handler',
+      'configuration' => 'islandora_oai.handler_admin',
       'requests' => [
         'ListIdentifiers' => [
           'file' => drupal_get_path('module', 'islandora_oai') . '/includes/handler.inc',

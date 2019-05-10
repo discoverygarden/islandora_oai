@@ -4,6 +4,7 @@ namespace Drupal\islandora_oai\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Url;
 
 /**
  * Configuration form for the standard Islandora OAI request handler.
@@ -71,17 +72,15 @@ class HandlerAdmin extends ConfigFormBase {
       '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_exclude_content_models'),
       '#description' => $this->t('By default, all objects are visible to OAI metadata harvesters. This field allows you to exclude all objects with a certain content model, e.g "islandora:collectionCModel" to exclude all objects with the Islandora Core Collection content model. Content models are separated by line. NOTE: If islandora:collectionCModel is added, it will break the ListSets verb.'),
     ];
-    // @FIXME
-  // url() expects a route name or an external URI.
-  // $form['islandora_oai_configuration']['islandora_oai_exclude_islandora_namespace'] = array(
-  //     '#type' => 'checkbox',
-  //     '#title' => t('Exclude objects within the "islandora" namespace?'),
-  //     '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_exclude_islandora_namespace'),
-  //     '#description' => t('If this option is selected, note that restrictions within the <a href="@solr_url">Islandora Solr Search</a> module must match up with those within the core <a href="@islandora_url">Islandora</a> module.', array(
-  //       '@solr_url' => url('admin/islandora/search/islandora_solr/settings'),
-  //       '@islandora_url' => url('admin/islandora/configure'),
-  //     )),
-  //   );
+    $form['islandora_oai_configuration']['islandora_oai_exclude_islandora_namespace'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Exclude objects within the "islandora" namespace?'),
+      '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_exclude_islandora_namespace'),
+      '#description' => t('If this option is selected, note that restrictions within the <a href="@solr_url">Islandora Solr Search</a> module must match up with those within the core <a href="@islandora_url">Islandora</a> module.', array(
+        '@solr_url' => Url::fromRoute('islandora_solr.admin_settings')->toString(),
+        '@islandora_url' => Url::fromRoute('islandora.admin_config')->toString(),
+      )),
+    );
 
     $form['islandora_oai_configuration']['islandora_oai_append_dc_thumbnail'] = [
       '#type' => 'checkbox',
@@ -89,16 +88,12 @@ class HandlerAdmin extends ConfigFormBase {
       '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_append_dc_thumbnail'),
       '#description' => $this->t("If this option is selected, a link to an object's thumbnail will be added to OAI_DC responses."),
     ];
-    // @FIXME
-  // // @FIXME
-  // // This looks like another module's variable. You'll need to rewrite this call
-  // // to ensure that it uses the correct configuration object.
-  // if (!variable_get('islandora_namespace_restriction_enforced', FALSE)) {
-  //     $form['islandora_oai_configuration']['islandora_oai_exclude_islandora_namespace']['#disabled'] = TRUE;
-  //     $form['islandora_oai_configuration']['islandora_oai_exclude_islandora_namespace']['#description'] = t('Excluding the Islandora namespace is only possible when namespace restrictions are enabled within the <a href="@islandora_url">Islandora</a> module.', array(
-  //       '@islandora_url' => url('admin/islandora/configure'),
-  //     ));
-  //   }
+    if (!\Drupal::config('islandora.settings')->get('islandora_namespace_restriction_enforced')) {
+      $form['islandora_oai_configuration']['islandora_oai_exclude_islandora_namespace']['#disabled'] = TRUE;
+      $form['islandora_oai_configuration']['islandora_oai_exclude_islandora_namespace']['#description'] = t('Excluding the Islandora namespace is only possible when namespace restrictions are enabled within the <a href="@islandora_url">Islandora</a> module.', array(
+        '@islandora_url' => Url::fromRoute('islandora.admin_config')->toString(),
+      ));
+    }
 
     $metadata_format_options = [];
     $metadata_formats = [];

@@ -5,6 +5,8 @@
  * Stores all the default handler functionality for OAI responses.
  */
 
+use Drupal\Core\Url;
+
 /**
  * Responds to the ListSets request.
  *
@@ -56,33 +58,22 @@ EOQ;
 
     case 'solr':
       $qp = new IslandoraSolrQueryProcessor();
-      // @FIXME
-// // @FIXME
-// // This looks like another module's variable. You'll need to rewrite this call
-// // to ensure that it uses the correct configuration object.
-// $label_field = variable_get('islandora_solr_object_label_field', 'fgs_label_s');
+      $solr_config = \Drupal::config('islandora_solr.settings');
+      $label_field = $solr_config->get('islandora_solr_object_label_field');
 
       $solr_params = [
         'limit' => $params['max_records'],
         'sort' => $label_field,
       ];
-      // @FIXME
-// // @FIXME
-// // This looks like another module's variable. You'll need to rewrite this call
-// // to ensure that it uses the correct configuration object.
-// $qp->buildQuery(strtr('!field:"info:fedora/islandora:collectionCModel"', array(
-//         '!field' => variable_get('islandora_solr_content_model_field', 'RELS_EXT_hasModel_uri_ms'),
-//       )), $solr_params);
+      $qp->buildQuery(strtr('!field:"info:fedora/islandora:collectionCModel"', [
+        '!field' => $solr_config->get('islandora_solr_content_model_field'),
+      ]), $solr_params);
 
       $qp->solrStart = $params['token']->deliveredrecords;
       $qp->executeQuery(FALSE);
       $total_records = $qp->islandoraSolrResult['response']['numFound'];
       $records = [];
-      // @FIXME
-// // @FIXME
-// // This looks like another module's variable. You'll need to rewrite this call
-// // to ensure that it uses the correct configuration object.
-// $datastreams_field = variable_get('islandora_solr_datastream_id_field', 'fedora_datastreams_ms');
+      $datastreams_field = $solr_config->get('islandora_solr_datastream_id_field',);
 
       foreach ($qp->islandoraSolrResult['response']['objects'] as $object) {
         $records[$object['PID']] = [
@@ -199,12 +190,10 @@ function islandora_oai_object_response_xml(array $params) {
   }
   // Jam the dc.identifier.thumbnail into the OAI_DC output.
   if (isset($object['TN']) && \Drupal::config('islandora_oai.settings')->get('islandora_oai_append_dc_thumbnail') && $params['metadata_prefix'] == 'oai_dc' && !empty($oai_output) && islandora_datastream_access(ISLANDORA_VIEW_OBJECTS, $object['TN'])) {
-    // @FIXME
-// url() expects a route name or an external URI.
-// $thumb_url = url("islandora/object/{$object->id}/datastream/TN/view/{$object->label}.jpg", array(
-//       'absolute' => TRUE,
-//       'language' => NULL,
-//     ));
+    $thumb_url = Url::fromRoute('islandora.view_datastream', ['object' => $object->id], [
+      'absolute' => TRUE,
+      'language' => NULL,
+    ])->toString();
 
     $dom = new DOMDocument();
     $dom->loadXML($oai_output);
@@ -642,13 +631,9 @@ function islandora_oai_query_solr_for_child_sets($parent, array &$sets = []) {
   // Set is part of the current collection.
   $qp->solrParams['fq'][] = islandora_oai_build_membership_fq_statement([$parent]);
   // Set is also a collection itself.
-  // @FIXME
-// // @FIXME
-// // This looks like another module's variable. You'll need to rewrite this call
-// // to ensure that it uses the correct configuration object.
-// $qp->solrParams['fq'][] = strtr('!field:"info:fedora/islandora:collectionCModel"', array(
-//     '!field' => variable_get('islandora_solr_content_model_field', 'RELS_EXT_hasModel_uri_ms'),
-//   ));
+  $qp->solrParams['fq'][] = strtr('!field:"info:fedora/islandora:collectionCModel"', array(
+    '!field' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_content_model_field'),
+  ));
 
 
   // XXX: Use POST as the filters for membership to a collection can be very
@@ -682,96 +667,92 @@ function islandora_oai_query_ri_for_child_sets($set) {
 
   $connection = islandora_get_tuque_connection();
   // Query sets from RI (SPARQL).
-  // @FIXME
-// // @FIXME
-// // This looks like another module's variable. You'll need to rewrite this call
-// // to ensure that it uses the correct configuration object.
-// if (!variable_get('islandora_risearch_use_itql_when_necessary', TRUE)) {
-//     $xacml_filter = module_invoke('islandora_xacml_api', 'islandora_basic_collection_get_query_filters');
-//     $query = <<<EOQ
-// SELECT ?child
-// FROM <#ri>
-// WHERE {
-//   ?child <fedora-model:state> <fedora-model:Active> .
-//   {
-//     ?child <fedora-model:hasModel> <info:fedora/islandora:collectionCModel>
-//   } UNION {
-//     ?child <fedora-model:hasModel> [<fedora-model:hasModel> <info:fedora/islandora:collectionCModel>]
-//   } .
-//   {
-//     ?child <fedora-rels-ext:isMemberOfCollection>+ <info:fedora/$set>
-//   } UNION {
-//     ?child <fedora-rels-ext:isMemberOf>+ <info:fedora/$set>
-//   }
-//   OPTIONAL {
-//     ?child <http://islandora.ca/ontology/relsext#isViewableByRole> ?role .
-//   }
-//   OPTIONAL {
-//     ?child <http://islandora.ca/ontology/relsext#isViewableByUser> ?user .
-//   }
-//   FILTER($xacml_filter)
-// }
-// EOQ;
-//     $query_results = $connection->repository->ri->sparqlQuery($query);
-//   }
-//   // Query sets from RI (iTQL).
-//   else {
-//     $itql_query = '
-//     select $child from <#ri>
-//     where
-//     (
-//       (
-//         (
-//         $child <fedora-model:hasModel> $model
-//         and $model <mulgara:is> <info:fedora/islandora:collectionCModel>
-//         and $model <fedora-model:hasModel> <info:fedora/fedora-system:ContentModel-3.0>
-//         )
-//       or
-//         (
-//         $child <fedora-model:hasModel> $model
-//         and $model <fedora-model:hasModel> <info:fedora/islandora:collectionCModel>
-//         and $child <fedora-model:state> <info:fedora/fedora-system:def/model#Active>
-//         )
-//       minus $child <http://islandora.ca/ontology/relsext#isViewableByRole> $role
-//       minus $child <http://islandora.ca/ontology/relsext#isViewableByUser> $user
-//       )
-//     or
-//       (
-//         (
-//         $child <fedora-model:hasModel> $model
-//         and $model <mulgara:is> <info:fedora/islandora:collectionCModel>
-//         and $model <fedora-model:hasModel> <info:fedora/fedora-system:ContentModel-3.0>
-//         )
-//       or
-//         (
-//         $child <fedora-model:hasModel> $model
-//         and $model <fedora-model:hasModel> <info:fedora/islandora:collectionCModel>
-//         and $child <fedora-model:state> <info:fedora/fedora-system:def/model#Active>
-//         )
-//     and
-//         (';
-//     foreach ($user->roles as $role) {
-//       $itql_query .= '$child <http://islandora.ca/ontology/relsext#isViewableByRole> ' . "'$role' or ";
-//     }
-//     $itql_query .= '$child <http://islandora.ca/ontology/relsext#isViewableByUser> ' . "'$user_name'" . ')';
-//     $itql_query .= ')
-//     )
-//   and
-//     (
-//     walk
-//       (
-//         $parent <fedora-rels-ext:isMemberOfCollection><info:fedora/' . $set . '>
-//          and $child <fedora-rels-ext:isMemberOfCollection> $parent
-//       )
-//     or
-//     walk
-//       (
-//         $parent <fedora-rels-ext:isMemberOf><info:fedora/' . $set . '>
-//         and $child <fedora-rels-ext:isMemberOf> $parent
-//       )
-//   )';
-//     $query_results = $connection->repository->ri->itqlQuery($itql_query);
-//   }
+  if (!\Drupal::config('islandora.settings')->get('islandora_risearch_use_itql_when_necessary')) {
+    $xacml_filter = \Drupal::moduleHandler()->invoke('islandora_xacml_api', 'islandora_basic_collection_get_query_filters');
+    $query = <<<EOQ
+SELECT ?child
+FROM <#ri>
+WHERE {
+  ?child <fedora-model:state> <fedora-model:Active> .
+  {
+    ?child <fedora-model:hasModel> <info:fedora/islandora:collectionCModel>
+  } UNION {
+    ?child <fedora-model:hasModel> [<fedora-model:hasModel> <info:fedora/islandora:collectionCModel>]
+  } .
+  {
+    ?child <fedora-rels-ext:isMemberOfCollection>+ <info:fedora/$set>
+  } UNION {
+    ?child <fedora-rels-ext:isMemberOf>+ <info:fedora/$set>
+  }
+  OPTIONAL {
+    ?child <http://islandora.ca/ontology/relsext#isViewableByRole> ?role .
+  }
+  OPTIONAL {
+    ?child <http://islandora.ca/ontology/relsext#isViewableByUser> ?user .
+  }
+  FILTER($xacml_filter)
+}
+EOQ;
+    $query_results = $connection->repository->ri->sparqlQuery($query);
+  }
+  // Query sets from RI (iTQL).
+  else {
+    $itql_query = '
+    select $child from <#ri>
+    where
+    (
+      (
+        (
+        $child <fedora-model:hasModel> $model
+        and $model <mulgara:is> <info:fedora/islandora:collectionCModel>
+        and $model <fedora-model:hasModel> <info:fedora/fedora-system:ContentModel-3.0>
+        )
+      or
+        (
+        $child <fedora-model:hasModel> $model
+        and $model <fedora-model:hasModel> <info:fedora/islandora:collectionCModel>
+        and $child <fedora-model:state> <info:fedora/fedora-system:def/model#Active>
+        )
+      minus $child <http://islandora.ca/ontology/relsext#isViewableByRole> $role
+      minus $child <http://islandora.ca/ontology/relsext#isViewableByUser> $user
+      )
+    or
+      (
+        (
+        $child <fedora-model:hasModel> $model
+        and $model <mulgara:is> <info:fedora/islandora:collectionCModel>
+        and $model <fedora-model:hasModel> <info:fedora/fedora-system:ContentModel-3.0>
+        )
+      or
+        (
+        $child <fedora-model:hasModel> $model
+        and $model <fedora-model:hasModel> <info:fedora/islandora:collectionCModel>
+        and $child <fedora-model:state> <info:fedora/fedora-system:def/model#Active>
+        )
+    and
+        (';
+    foreach ($user->roles as $role) {
+      $itql_query .= '$child <http://islandora.ca/ontology/relsext#isViewableByRole> ' . "'$role' or ";
+    }
+    $itql_query .= '$child <http://islandora.ca/ontology/relsext#isViewableByUser> ' . "'$user_name'" . ')';
+    $itql_query .= ')
+    )
+  and
+    (
+    walk
+      (
+        $parent <fedora-rels-ext:isMemberOfCollection><info:fedora/' . $set . '>
+         and $child <fedora-rels-ext:isMemberOfCollection> $parent
+      )
+    or
+    walk
+      (
+        $parent <fedora-rels-ext:isMemberOf><info:fedora/' . $set . '>
+        and $child <fedora-rels-ext:isMemberOf> $parent
+      )
+  )';
+    $query_results = $connection->repository->ri->itqlQuery($itql_query);
+  }
 
   return $query_results;
 }

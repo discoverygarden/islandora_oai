@@ -4,6 +4,7 @@ namespace Drupal\islandora_oai\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Link;
 
 /**
  * Module administration form.
@@ -143,12 +144,10 @@ class Admin extends ConfigFormBase {
           '#type' => 'item',
           '#markup' => $profile['description'],
         ];
-        // @FIXME
-  // l() expects a Url object, created from a route name or external URI.
-  // $form['islandora_oai_configuration']['handlers']['configuration'][$name] = array(
-  //         '#type' => 'item',
-  //         '#markup' => (isset($profile['configuration']) AND $profile['configuration'] != '') ? l(t('configure'), $profile['configuration']) : '',
-  //       );
+        $form['islandora_oai_configuration']['handlers']['configuration'][$name] = [
+          '#type' => 'item',
+          '#markup' => (isset($profile['configuration']) AND $profile['configuration'] != '') ? Link::createFromRoute(t('configure'), $profile['configuration'])->toString() : '',
+        ];
 
       }
       $form['islandora_oai_configuration']['handlers']['default'] = [
