@@ -318,14 +318,14 @@ class HandlerAdmin extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $config = $this->config('');
-    \Drupal::configFactory()->getEditable('islandora_oai.settings')->set('islandora_oai_collection_field', $form_state['values']['islandora_oai_configuration']['islandora_oai_collection_field'])->save();
-    \Drupal::configFactory()->getEditable('islandora_oai.settings')->set('islandora_oai_content_model_field', $form_state['values']['islandora_oai_configuration']['islandora_oai_content_model_field'])->save();
-    \Drupal::configFactory()->getEditable('islandora_oai.settings')->set('islandora_oai_exclude_content_models', $form_state['values']['islandora_oai_configuration']['islandora_oai_exclude_content_models'])->save();
-    \Drupal::configFactory()->getEditable('islandora_oai.settings')->set('islandora_oai_date_field', $form_state['values']['islandora_oai_configuration']['islandora_oai_date_field'])->save();
-    \Drupal::configFactory()->getEditable('islandora_oai.settings')->set('islandora_oai_exclude_islandora_namespace', $form_state['values']['islandora_oai_configuration']['islandora_oai_exclude_islandora_namespace'])->save();
-    \Drupal::configFactory()->getEditable('islandora_oai.settings')->set('islandora_oai_append_dc_thumbnail', $form_state['values']['islandora_oai_configuration']['islandora_oai_append_dc_thumbnail'])->save();
-    \Drupal::configFactory()->getEditable('islandora_oai.settings')->set('islandora_oai_solr_remove_base_filters', $form_state['values']['islandora_oai_configuration']['islandora_oai_solr_remove_base_filters'])->save();
+    $config = $this->config('islandora_oai.settings');
+    $config->set('islandora_oai_collection_field', $form_state['values']['islandora_oai_configuration']['islandora_oai_collection_field'])->save();
+    $config->set('islandora_oai_content_model_field', $form_state['values']['islandora_oai_configuration']['islandora_oai_content_model_field'])->save();
+    $config->set('islandora_oai_exclude_content_models', $form_state['values']['islandora_oai_configuration']['islandora_oai_exclude_content_models'])->save();
+    $config->set('islandora_oai_date_field', $form_state['values']['islandora_oai_configuration']['islandora_oai_date_field'])->save();
+    $config->set('islandora_oai_exclude_islandora_namespace', $form_state['values']['islandora_oai_configuration']['islandora_oai_exclude_islandora_namespace'])->save();
+    $config->set('islandora_oai_append_dc_thumbnail', $form_state['values']['islandora_oai_configuration']['islandora_oai_append_dc_thumbnail'])->save();
+    $config->set('islandora_oai_solr_remove_base_filters', $form_state['values']['islandora_oai_configuration']['islandora_oai_solr_remove_base_filters'])->save();
     // Loop through our transform options.
     foreach ($form_state['values']['islandora_oai_metadata']['islandora_oai_options'] as $key => $value) {
       // @FIXME
