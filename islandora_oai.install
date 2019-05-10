@@ -5,13 +5,16 @@
  * Installs required DB tables and default metadata prefixes for islandora_oai.
  */
 
+use Drupal\Core\Database\Database;
+
 /**
  * Implements hook_install().
  */
 function islandora_oai_install() {
   \Drupal::service("file_system")->mkdir('public://islandora_oai_xsls');
+  $connection = Database::getConnection();
 
-  db_insert('islandora_oai_metadata_formats')
+  $connection->insert('islandora_oai_metadata_formats')
   ->fields([
     'name' => 'oai_dc',
     'metadata_prefix' => 'oai_dc',
@@ -22,7 +25,7 @@ function islandora_oai_install() {
   ])
   ->execute();
 
-  db_insert('islandora_oai_metadata_formats')
+  $connection->insert('islandora_oai_metadata_formats')
   ->fields([
     'name' => 'oai_etdms',
     'metadata_prefix' => 'oai_etdms',
@@ -33,7 +36,7 @@ function islandora_oai_install() {
   ])
   ->execute();
 
-  db_insert('islandora_oai_metadata_formats')
+  $connection->insert('islandora_oai_metadata_formats')
     ->fields([
       'name' => 'mods',
       'metadata_prefix' => 'mods',
@@ -44,7 +47,7 @@ function islandora_oai_install() {
     ])
     ->execute();
 
-  db_insert('islandora_oai_metadata_formats')
+  $connection->insert('islandora_oai_metadata_formats')
     ->fields([
       'name' => 'qdc',
       'metadata_prefix' => 'oai_qdc',
