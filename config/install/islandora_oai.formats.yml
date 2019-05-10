@@ -1,0 +1,33 @@
+formats:
+  mods:
+    islandora_oai_metadata_datastream_id: DC
+    islandora_oai_transform_file: default
+    islandora_oai_self_transform_file: default
+    islandora_oai_include_object_links: false
+    islandora_oai_object_links_xpath: ''
+    islandora_oai_object_links_field: ''
+    islandora_oai_object_links_record_namespace: false
+  oai_dc:
+    islandora_oai_metadata_datastream_id: DC
+    islandora_oai_transform_file: default
+    islandora_oai_self_transform_file: default
+    islandora_oai_include_object_links: false
+    islandora_oai_object_links_xpath: ''
+    islandora_oai_object_links_field: ''
+    islandora_oai_object_links_record_namespace: false
+  oai_etdms:
+    islandora_oai_metadata_datastream_id: DC
+    islandora_oai_transform_file: default
+    islandora_oai_self_transform_file: default
+    islandora_oai_include_object_links: false
+    islandora_oai_object_links_xpath: ''
+    islandora_oai_object_links_field: ''
+    islandora_oai_object_links_record_namespace: false
+  oai_qdc:
+    islandora_oai_metadata_datastream_id: DC
+    islandora_oai_transform_file: default
+    islandora_oai_self_transform_file: default
+    islandora_oai_include_object_links: false
+    islandora_oai_object_links_xpath: ''
+    islandora_oai_object_links_field: ''
+    islandora_oai_object_links_record_namespace: false

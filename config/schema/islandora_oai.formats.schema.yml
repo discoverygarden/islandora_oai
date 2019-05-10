@@ -21,5 +21,11 @@ islandora_oai.format:
       type: string
       label: 'Name of field to include link into'
     islandora_oai_object_links_record_namespace:
-      type: string
+      type: boolean
       label: 'Include record namespace'
+    islandora_oai_metadata_prefix:
+      type: string
+    islandora_oai_metadata_namespace:
+      type: string
+    islandora_oai_schema_location:
+      type: string

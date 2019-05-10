@@ -22,7 +22,7 @@ class HandlerAdmin extends ConfigFormBase {
    * {@inheritdoc}
    */
   protected function getEditableConfigNames() {
-    return [''];
+    return ['islandora_oai.settings', 'islandora_oai.formats'];
   }
 
   /**
@@ -99,8 +99,8 @@ class HandlerAdmin extends ConfigFormBase {
     $metadata_formats = [];
     $results = db_query('SELECT * FROM {islandora_oai_metadata_formats} ORDER BY name');
     foreach ($results as $row) {
-      $metadata_format_options[$row->name] = \Drupal\Component\Utility\Unicode::strtoupper($row->name);
-      $metadata_formats[$row->name] = $row;
+      $metadata_format_options[$row->metadata_prefix] = \Drupal\Component\Utility\Unicode::strtoupper($row->metadata_prefix);
+      $metadata_formats[$row->metadata_prefix] = $row;
     }
 
     $form['islandora_oai_metadata'] = [
@@ -127,137 +127,106 @@ class HandlerAdmin extends ConfigFormBase {
     $transform_options = ['default' => $this->t('No transformation selected')];
     $transform_options = array_merge($transform_options, $oai_invoke_files);
 
-    foreach ($metadata_formats as $format) {
-      // @FIXME
-  // // @FIXME
-  // // The correct configuration object could not be determined. You'll need to
-  // // rewrite this call manually.
-  // $default_transform = variable_get("islandora_oai_transform_file_$format->name", 'default');
+    $formats_config = $this->config('islandora_oai.formats')->get('formats');
+    foreach ($metadata_formats as $format_key => $format) {
+      $format_config = $formats_config[$format_key];
+      $default_transform = $format_config['islandora_oai_transform_file'];
+      $default_self_transform = $format_config['islandora_oai_self_transform_file'];
 
-      // @FIXME
-  // // @FIXME
-  // // The correct configuration object could not be determined. You'll need to
-  // // rewrite this call manually.
-  // $default_self_transform = variable_get("islandora_oai_self_transform_file_$format->name", 'default');
-
-      $form['islandora_oai_metadata'][$format->name]['islandora_oai_metadata_prefix'] = [
+      $form['islandora_oai_metadata'][$format->metadata_prefix]['islandora_oai_metadata_prefix'] = [
         '#type' => 'item',
         '#title' => $this->t('Metadata Prefix'),
         '#markup' => $format->metadata_prefix,
         '#description' => $this->t('Default metadata prefix for the selected format.'),
         '#states' => [
           'visible' => [
-            ':input[name="islandora_oai_metadata_format"]' => ['value' => $format->name],
+            ':input[name="islandora_oai_metadata_format"]' => ['value' => $format->metadata_prefix],
           ],
         ],
       ];
-      $form['islandora_oai_metadata'][$format->name]['islandora_oai_metadata_namespace'] = [
+      $form['islandora_oai_metadata'][$format->metadata_prefix]['islandora_oai_metadata_namespace'] = [
         '#type' => 'item',
         '#title' => $this->t('Metadata Namespace'),
         '#markup' => $format->metadata_namespace,
         '#description' => $this->t('Default metadata namespace for the selected format.'),
         '#states' => [
           'visible' => [
-            ':input[name="islandora_oai_metadata_format"]' => ['value' => $format->name],
+            ':input[name="islandora_oai_metadata_format"]' => ['value' => $format->metadata_prefix],
           ],
         ],
       ];
-      $form['islandora_oai_metadata'][$format->name]['islandora_oai_schema_location'] = [
+      $form['islandora_oai_metadata'][$format->metadata_prefix]['islandora_oai_schema_location'] = [
         '#type' => 'item',
         '#title' => $this->t('Schema Location'),
         '#markup' => $format->oai2_schema,
         '#description' => $this->t("Default URI for the selected metadata format's schema."),
         '#states' => [
           'visible' => [
-            ':input[name="islandora_oai_metadata_format"]' => ['value' => $format->name],
+            ':input[name="islandora_oai_metadata_format"]' => ['value' => $format->metadata_prefix],
           ],
         ],
       ];
-      // @FIXME
-  // // @FIXME
-  // // The correct configuration object could not be determined. You'll need to
-  // // rewrite this call manually.
-  // $form['islandora_oai_metadata'][$format->metadata_prefix]["islandora_oai_include_object_links_for_$format->metadata_prefix"] = array(
-  //       '#type' => 'checkbox',
-  //       '#title' => t('Force include a link to the object within Islandora?'),
-  //       '#description' => t('This is used in cases where metadata may not have links or Handles that point back to the object in the repository. Services like WorldCat expect a linkback to the object. This functionality can be achieved using XSLTs as well.'),
-  //       '#states' => array(
-  //         'visible' => array(
-  //           ':input[name="islandora_oai_metadata_format"]' => array('value' => $format->name),
-  //         ),
-  //       ),
-  //       '#default_value' => variable_get("islandora_oai_include_object_links_for_$format->metadata_prefix", FALSE),
-  //     );
+      $form['islandora_oai_metadata'][$format->metadata_prefix]['islandora_oai_include_object_links'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Force include a link to the object within Islandora?'),
+        '#description' => $this->t('This is used in cases where metadata may not have links or Handles that point back to the object in the repository. Services like WorldCat expect a linkback to the object. This functionality can be achieved using XSLTs as well.'),
+        '#states' => [
+          'visible' => [
+            ':input[name="islandora_oai_metadata_format"]' => ['value' => $format->metadata_prefix],
+          ],
+        ],
+        '#default_value' => $format_config['islandora_oai_include_object_links'],
+      ];
+      $form['islandora_oai_metadata'][$format->metadata_prefix]['islandora_oai_object_links_xpath'] = [
+        '#type' => 'textfield',
+        '#title' => $this->t('XPath'),
+        '#description' => $this->t('Optionally include an XPath to append the link under. Leave empty to append under the root element.'),
+        '#states' => [
+          'visible' => [
+            ':input[name="islandora_oai_metadata_format"]' => ['value' => $format->metadata_prefix],
+            ":input[name='islandora_oai_metadata[{$format->metadata_prefix}][islandora_oai_include_object_links]']" => ['checked' => TRUE],
+          ],
+        ],
+        '#default_value' => $format_config['islandora_oai_object_links_xpath'],
+      ];
+      $form['islandora_oai_metadata'][$format->metadata_prefix]['islandora_oai_object_links_field'] = [
+        '#type' => 'textfield',
+        '#title' => $this->t('Field'),
+        '#description' => $this->t('The name of the field to append the link into. Ex: For dc:identifier, just enter identifier.'),
+        '#states' => [
+          'visible' => [
+            ':input[name="islandora_oai_metadata_format"]' => ['value' => $format->metadata_prefix],
+            ":input[name='islandora_oai_metadata[{$format->metadata_prefix}][islandora_oai_include_object_links]']" => ['checked' => TRUE],
+          ],
+        ],
+        '#default_value' => $format_config['islandora_oai_object_links_field'],
+      ];
+      $form['islandora_oai_metadata'][$format->metadata_prefix]['islandora_oai_object_links_record_namespace'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Include record namespace?'),
+        '#description' => $this->t('This will include the record namespace and prefix for the field listed above. If the default namespace is declared in your metadata avoid using this.'),
+        '#states' => [
+          'visible' => [
+            ':input[name="islandora_oai_metadata_format"]' => ['value' => $format->metadata_prefix],
+            ":input[name='islandora_oai_metadata[{$format->metadata_prefix}][islandora_oai_include_object_links]']" => ['checked' => TRUE],
+          ],
+        ],
+        '#default_value' => $format_config['islandora_oai_object_links_record_namespace'],
+      ];
+      $form['islandora_oai_metadata']['islandora_oai_options'][$format->metadata_prefix]['islandora_oai_metadata_datastream_id'] = [
+        '#type' => 'textfield',
+        '#size' => 30,
+        '#title' => 'Metadata Datastream ID',
+        '#default_value' => $format_config['islandora_oai_metadata_datastream_id'],
+        '#description' => $this->t('(Note that this is case-sensitive)'),
+        '#states' => [
+          'visible' => [
+            ':input[name="islandora_oai_metadata_format"]' => ['value' => $format->metadata_prefix],
+          ],
+        ],
+      ];
 
-      // @FIXME
-  // // @FIXME
-  // // The correct configuration object could not be determined. You'll need to
-  // // rewrite this call manually.
-  // $form['islandora_oai_metadata'][$format->metadata_prefix]["islandora_oai_object_links_for_{$format->metadata_prefix}_xpath"] = array(
-  //       '#type' => 'textfield',
-  //       '#title' => t('XPath'),
-  //       '#description' => t('Optionally include an XPath to append the link under. Leave empty to append under the root element.'),
-  //       '#states' => array(
-  //         'visible' => array(
-  //           ':input[name="islandora_oai_metadata_format"]' => array('value' => $format->name),
-  //           ":input[name='islandora_oai_metadata[{$format->metadata_prefix}][islandora_oai_include_object_links_for_{$format->metadata_prefix}]']" => array('checked' => TRUE),
-  //         ),
-  //       ),
-  //       '#default_value' => variable_get("islandora_oai_object_links_for_{$format->metadata_prefix}_xpath", ''),
-  //     );
-
-      // @FIXME
-  // // @FIXME
-  // // The correct configuration object could not be determined. You'll need to
-  // // rewrite this call manually.
-  // $form['islandora_oai_metadata'][$format->metadata_prefix]["islandora_oai_object_links_for_{$format->metadata_prefix}_field"] = array(
-  //       '#type' => 'textfield',
-  //       '#title' => t('Field'),
-  //       '#description' => t('The name of the field to append the link into. Ex: For dc:identifier, just enter identifier.'),
-  //       '#states' => array(
-  //         'visible' => array(
-  //           ':input[name="islandora_oai_metadata_format"]' => array('value' => $format->name),
-  //           ":input[name='islandora_oai_metadata[{$format->metadata_prefix}][islandora_oai_include_object_links_for_{$format->metadata_prefix}]']" => array('checked' => TRUE),
-  //         ),
-  //       ),
-  //       '#default_value' => variable_get("islandora_oai_object_links_for_{$format->metadata_prefix}_field", ''),
-  //     );
-
-      // @FIXME
-  // // @FIXME
-  // // The correct configuration object could not be determined. You'll need to
-  // // rewrite this call manually.
-  // $form['islandora_oai_metadata'][$format->metadata_prefix]["islandora_oai_object_links_for_{$format->metadata_prefix}_record_namespace"] = array(
-  //       '#type' => 'checkbox',
-  //       '#title' => t('Include record namespace?'),
-  //       '#description' => t('This will include the record namespace and prefix for the field listed above. If the default namespace is declared in your metadata avoid using this.'),
-  //       '#states' => array(
-  //         'visible' => array(
-  //           ':input[name="islandora_oai_metadata_format"]' => array('value' => $format->name),
-  //           ":input[name='islandora_oai_metadata[{$format->metadata_prefix}][islandora_oai_include_object_links_for_{$format->metadata_prefix}]']" => array('checked' => TRUE),
-  //         ),
-  //       ),
-  //       '#default_value' => variable_get("islandora_oai_object_links_for_{$format->metadata_prefix}_record_namespace", FALSE),
-  //     );
-
-      // @FIXME
-  // // @FIXME
-  // // The correct configuration object could not be determined. You'll need to
-  // // rewrite this call manually.
-  // $form['islandora_oai_metadata']['islandora_oai_options']["islandora_oai_metadata_datastream_id_$format->metadata_prefix"] = array(
-  //       '#type' => 'textfield',
-  //       '#size' => 30,
-  //       '#title' => 'Metadata Datastream ID',
-  //       '#default_value' => variable_get("islandora_oai_metadata_datastream_id_$format->metadata_prefix", 'DC'),
-  //       '#description' => t('(Note that this is case-sensitive)'),
-  //       '#states' => array(
-  //         'visible' => array(
-  //           ':input[name="islandora_oai_metadata_format"]' => array('value' => $format->name),
-  //         ),
-  //       ),
-  //     );
-
-      $form['islandora_oai_metadata']['islandora_oai_options']["islandora_oai_transform_file_$format->metadata_prefix"] = [
+      $form['islandora_oai_metadata']['islandora_oai_options'][$format->metadata_prefix]['islandora_oai_transform_file'] = [
         '#type' => 'select',
         '#title' => $this->t('File to use for transforming @metadata_prefix', ['@metadata_prefix' => $format->metadata_prefix]),
         '#options' => $transform_options,
@@ -265,12 +234,12 @@ class HandlerAdmin extends ConfigFormBase {
         '#description' => $this->t('XSL or XSLT file used to translate existing metadata to an appropriate OAI-PMH format.'),
         '#states' => [
           'visible' => [
-            ':input[name="islandora_oai_metadata_format"]' => ['value' => $format->name],
+            ':input[name="islandora_oai_metadata_format"]' => ['value' => $format->metadata_prefix],
           ],
         ],
       ];
 
-      $form['islandora_oai_metadata']['islandora_oai_options']["islandora_oai_self_transform_file_$format->metadata_prefix"] = [
+      $form['islandora_oai_metadata']['islandora_oai_options'][$format->metadata_prefix]['islandora_oai_self_transform_file'] = [
         '#type' => 'select',
         '#title' => $this->t('File to use for self transforming @metadata_prefix', ['@metadata_prefix' => $format->metadata_prefix]),
         '#options' => $transform_options,
@@ -278,7 +247,7 @@ class HandlerAdmin extends ConfigFormBase {
         '#description' => $this->t('XSL or XSLT file used to transform xml prior transforming to an appropriate OAI-PMH format.'),
         '#states' => [
           'visible' => [
-            ':input[name="islandora_oai_metadata_format"]' => ['value' => $format->name],
+            ':input[name="islandora_oai_metadata_format"]' => ['value' => $format->metadata_prefix],
           ],
         ],
       ];
@@ -300,10 +269,10 @@ class HandlerAdmin extends ConfigFormBase {
       $metadata_formats[$row->metadata_prefix] = $row->metadata_prefix;
     }
     foreach ($metadata_formats as $format) {
-      if ($form_state->getValues()['islandora_oai_metadata'][$format]["islandora_oai_include_object_links_for_{$format}"]) {
-        $field = trim($form_state->getValues()['islandora_oai_metadata'][$format]["islandora_oai_object_links_for_{$format}_field"]);
+      if ($form_state->getValues()['islandora_oai_metadata'][$format]['islandora_oai_include_object_links']) {
+        $field = trim($form_state->getValues()['islandora_oai_metadata'][$format]['islandora_oai_object_links_field']);
         if (empty($field)) {
-          form_error($form['islandora_oai_metadata'][$format]["islandora_oai_object_links_for_{$format}_field"], $this->t('The field must not be empty.'));
+          $form_state->setError($form['islandora_oai_metadata'][$format]['islandora_oai_object_links_field'], $this->t('The field must not be empty.'));
         }
       }
     }
@@ -321,14 +290,12 @@ class HandlerAdmin extends ConfigFormBase {
     $config->set('islandora_oai_exclude_islandora_namespace', $form_state->getValues()['islandora_oai_configuration']['islandora_oai_exclude_islandora_namespace'])->save();
     $config->set('islandora_oai_append_dc_thumbnail', $form_state->getValues()['islandora_oai_configuration']['islandora_oai_append_dc_thumbnail'])->save();
     $config->set('islandora_oai_solr_remove_base_filters', $form_state->getValues()['islandora_oai_configuration']['islandora_oai_solr_remove_base_filters'])->save();
-    // Loop through our transform options.
-    foreach ($form_state->getValues()['islandora_oai_metadata']['islandora_oai_options'] as $key => $value) {
-      // @FIXME
-  // // @FIXME
-  // // The correct configuration object could not be determined. You'll need to
-  // // rewrite this call manually.
-  // variable_set($key, $value);
 
+    // Loop through our transform options.
+    $formats_config = [];
+    $formats_config_object = $this->config('islandora_oai.formats');
+    foreach ($form_state->getValues()['islandora_oai_metadata']['islandora_oai_options'] as $key => $value) {
+      $formats_config[$key] = $value;
     }
     // Loop through object linking.
     $metadata_formats = [];
@@ -338,17 +305,13 @@ class HandlerAdmin extends ConfigFormBase {
     }
     foreach ($metadata_formats as $format) {
       foreach ($form_state->getValues()['islandora_oai_metadata'][$format] as $key => $value) {
-        // @FIXME
-  // // @FIXME
-  // // The correct configuration object could not be determined. You'll need to
-  // // rewrite this call manually.
-  // variable_set($key, trim($value));
-
+        $formats_config[$format][$key] = $value;
       }
     }
-    drupal_set_message($this->t('The configuration options have been saved.'));
-
+    $formats_config_object->set('formats', $formats_config);
+    $formats_config_object->save();
     $config->save();
+    drupal_set_message($this->t('The configuration options have been saved.'));
   }
 
 }
