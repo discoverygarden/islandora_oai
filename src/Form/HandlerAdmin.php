@@ -72,15 +72,15 @@ class HandlerAdmin extends ConfigFormBase {
       '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_exclude_content_models'),
       '#description' => $this->t('By default, all objects are visible to OAI metadata harvesters. This field allows you to exclude all objects with a certain content model, e.g "islandora:collectionCModel" to exclude all objects with the Islandora Core Collection content model. Content models are separated by line. NOTE: If islandora:collectionCModel is added, it will break the ListSets verb.'),
     ];
-    $form['islandora_oai_configuration']['islandora_oai_exclude_islandora_namespace'] = array(
+    $form['islandora_oai_configuration']['islandora_oai_exclude_islandora_namespace'] = [
       '#type' => 'checkbox',
-      '#title' => t('Exclude objects within the "islandora" namespace?'),
+      '#title' => $this->t('Exclude objects within the "islandora" namespace?'),
       '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_exclude_islandora_namespace'),
-      '#description' => t('If this option is selected, note that restrictions within the <a href="@solr_url">Islandora Solr Search</a> module must match up with those within the core <a href="@islandora_url">Islandora</a> module.', array(
+      '#description' => $this->t('If this option is selected, note that restrictions within the <a href="@solr_url">Islandora Solr Search</a> module must match up with those within the core <a href="@islandora_url">Islandora</a> module.', array(
         '@solr_url' => Url::fromRoute('islandora_solr.admin_settings')->toString(),
         '@islandora_url' => Url::fromRoute('islandora.admin_config')->toString(),
       )),
-    );
+    ];
 
     $form['islandora_oai_configuration']['islandora_oai_append_dc_thumbnail'] = [
       '#type' => 'checkbox',
@@ -90,9 +90,9 @@ class HandlerAdmin extends ConfigFormBase {
     ];
     if (!\Drupal::config('islandora.settings')->get('islandora_namespace_restriction_enforced')) {
       $form['islandora_oai_configuration']['islandora_oai_exclude_islandora_namespace']['#disabled'] = TRUE;
-      $form['islandora_oai_configuration']['islandora_oai_exclude_islandora_namespace']['#description'] = t('Excluding the Islandora namespace is only possible when namespace restrictions are enabled within the <a href="@islandora_url">Islandora</a> module.', array(
+      $form['islandora_oai_configuration']['islandora_oai_exclude_islandora_namespace']['#description'] = $this->t('Excluding the Islandora namespace is only possible when namespace restrictions are enabled within the <a href="@islandora_url">Islandora</a> module.', [
         '@islandora_url' => Url::fromRoute('islandora.admin_config')->toString(),
-      ));
+      ]);
     }
 
     $metadata_format_options = [];

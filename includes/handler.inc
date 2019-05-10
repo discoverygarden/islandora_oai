@@ -73,7 +73,7 @@ EOQ;
       $qp->executeQuery(FALSE);
       $total_records = $qp->islandoraSolrResult['response']['numFound'];
       $records = [];
-      $datastreams_field = $solr_config->get('islandora_solr_datastream_id_field',);
+      $datastreams_field = $solr_config->get('islandora_solr_datastream_id_field');
 
       foreach ($qp->islandoraSolrResult['response']['objects'] as $object) {
         $records[$object['PID']] = [
@@ -631,10 +631,9 @@ function islandora_oai_query_solr_for_child_sets($parent, array &$sets = []) {
   // Set is part of the current collection.
   $qp->solrParams['fq'][] = islandora_oai_build_membership_fq_statement([$parent]);
   // Set is also a collection itself.
-  $qp->solrParams['fq'][] = strtr('!field:"info:fedora/islandora:collectionCModel"', array(
+  $qp->solrParams['fq'][] = strtr('!field:"info:fedora/islandora:collectionCModel"', [
     '!field' => \Drupal::config('islandora_solr.settings')->get('islandora_solr_content_model_field'),
-  ));
-
+  ]);
 
   // XXX: Use POST as the filters for membership to a collection can be very
   // large.

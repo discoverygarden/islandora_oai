@@ -146,7 +146,7 @@ class Admin extends ConfigFormBase {
         ];
         $form['islandora_oai_configuration']['handlers']['configuration'][$name] = [
           '#type' => 'item',
-          '#markup' => (isset($profile['configuration']) AND $profile['configuration'] != '') ? Link::createFromRoute(t('configure'), $profile['configuration'])->toString() : '',
+          '#markup' => (isset($profile['configuration']) and $profile['configuration'] != '') ? Link::createFromRoute($this->t('configure'), $profile['configuration'])->toString() : '',
         ];
 
       }
