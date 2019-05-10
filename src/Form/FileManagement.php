@@ -86,7 +86,7 @@ class FileManagement extends FormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $deleted_count = 0;
     $fid_or = db_or();
-    foreach ($form_state['values']['table'] as $uri => $selected) {
+    foreach ($form_state->getValue('table') as $uri => $selected) {
       if ($selected !== 0) {
         $fid_or->condition('uri', $uri, '=');
       }
@@ -112,9 +112,9 @@ class FileManagement extends FormBase {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
-    if (end($form_state['triggering_element']['#parents']) == 'remove_selected') {
+    if (end($form_state->getTriggeringElement()['#parents']) == 'remove_selected') {
       $selected = FALSE;
-      foreach ($form_state['values']['table'] as $value) {
+      foreach ($form_state->getValue('table') as $value) {
         if ($value !== 0) {
           $selected = TRUE;
           break;

@@ -174,17 +174,17 @@ class Admin extends ConfigFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $config = $this->config('islandora_oai.settings');
-    $config->set('islandora_oai_repository_name', $form_state['values']['islandora_oai_configuration']['islandora_oai_repository_name'])->save();
-    $config->set('islandora_oai_path', $form_state['values']['islandora_oai_configuration']['islandora_oai_path'])->save();
-    $config->set('islandora_oai_repository_identifier', $form_state['values']['islandora_oai_configuration']['islandora_oai_repository_identifier'])->save();
-    $config->set('islandora_oai_admin_email', $form_state['values']['islandora_oai_configuration']['islandora_oai_admin_email'])->save();
-    $config->set('islandora_oai_max_size', $form_state['values']['islandora_oai_configuration']['islandora_oai_max_size'])->save();
-    $config->set('islandora_oai_expire_time', $form_state['values']['islandora_oai_configuration']['islandora_oai_expire_time'])->save();
-    $config->set('islandora_oai_request_handler', $form_state['values']['islandora_oai_configuration']['handlers']['default'])->save();
-    $config->set('islandora_oai_query_backend', $form_state['values']['islandora_oai_configuration']['islandora_oai_query_backend'])->save();
-    $config->set('islandora_oai_solr_state_field', $form_state['values']['islandora_oai_configuration']['islandora_oai_solr_state_field'])->save();
-    $config->set('islandora_oai_solr_collection_description_field', $form_state['values']['islandora_oai_configuration']['islandora_oai_solr_collection_description_field'])->save();
-    $config->set('islandora_oai_solr_object_ancestors_field', $form_state['values']['islandora_oai_configuration']['islandora_oai_solr_object_ancestors_field'])->save();
+    $config->set('islandora_oai_repository_name', $form_state->getValues()['islandora_oai_configuration']['islandora_oai_repository_name'])->save();
+    $config->set('islandora_oai_path', $form_state->getValues()['islandora_oai_configuration']['islandora_oai_path'])->save();
+    $config->set('islandora_oai_repository_identifier', $form_state->getValues()['islandora_oai_configuration']['islandora_oai_repository_identifier'])->save();
+    $config->set('islandora_oai_admin_email', $form_state->getValues()['islandora_oai_configuration']['islandora_oai_admin_email'])->save();
+    $config->set('islandora_oai_max_size', $form_state->getValues()['islandora_oai_configuration']['islandora_oai_max_size'])->save();
+    $config->set('islandora_oai_expire_time', $form_state->getValues()['islandora_oai_configuration']['islandora_oai_expire_time'])->save();
+    $config->set('islandora_oai_request_handler', $form_state->getValues()['islandora_oai_configuration']['handlers']['default'])->save();
+    $config->set('islandora_oai_query_backend', $form_state->getValues()['islandora_oai_configuration']['islandora_oai_query_backend'])->save();
+    $config->set('islandora_oai_solr_state_field', $form_state->getValues()['islandora_oai_configuration']['islandora_oai_solr_state_field'])->save();
+    $config->set('islandora_oai_solr_collection_description_field', $form_state->getValues()['islandora_oai_configuration']['islandora_oai_solr_collection_description_field'])->save();
+    $config->set('islandora_oai_solr_object_ancestors_field', $form_state->getValues()['islandora_oai_configuration']['islandora_oai_solr_object_ancestors_field'])->save();
     // Because of the dynamic pathing of the OAI path we need to rebuild the
     // menus.
     menu_rebuild();

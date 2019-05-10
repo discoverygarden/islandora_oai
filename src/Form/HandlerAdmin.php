@@ -305,8 +305,8 @@ class HandlerAdmin extends ConfigFormBase {
       $metadata_formats[$row->metadata_prefix] = $row->metadata_prefix;
     }
     foreach ($metadata_formats as $format) {
-      if ($form_state['values']['islandora_oai_metadata'][$format]["islandora_oai_include_object_links_for_{$format}"]) {
-        $field = trim($form_state['values']['islandora_oai_metadata'][$format]["islandora_oai_object_links_for_{$format}_field"]);
+      if ($form_state->getValues()['islandora_oai_metadata'][$format]["islandora_oai_include_object_links_for_{$format}"]) {
+        $field = trim($form_state->getValues()['islandora_oai_metadata'][$format]["islandora_oai_object_links_for_{$format}_field"]);
         if (empty($field)) {
           form_error($form['islandora_oai_metadata'][$format]["islandora_oai_object_links_for_{$format}_field"], $this->t('The field must not be empty.'));
         }
@@ -319,15 +319,15 @@ class HandlerAdmin extends ConfigFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $config = $this->config('islandora_oai.settings');
-    $config->set('islandora_oai_collection_field', $form_state['values']['islandora_oai_configuration']['islandora_oai_collection_field'])->save();
-    $config->set('islandora_oai_content_model_field', $form_state['values']['islandora_oai_configuration']['islandora_oai_content_model_field'])->save();
-    $config->set('islandora_oai_exclude_content_models', $form_state['values']['islandora_oai_configuration']['islandora_oai_exclude_content_models'])->save();
-    $config->set('islandora_oai_date_field', $form_state['values']['islandora_oai_configuration']['islandora_oai_date_field'])->save();
-    $config->set('islandora_oai_exclude_islandora_namespace', $form_state['values']['islandora_oai_configuration']['islandora_oai_exclude_islandora_namespace'])->save();
-    $config->set('islandora_oai_append_dc_thumbnail', $form_state['values']['islandora_oai_configuration']['islandora_oai_append_dc_thumbnail'])->save();
-    $config->set('islandora_oai_solr_remove_base_filters', $form_state['values']['islandora_oai_configuration']['islandora_oai_solr_remove_base_filters'])->save();
+    $config->set('islandora_oai_collection_field', $form_state->getValues()['islandora_oai_configuration']['islandora_oai_collection_field'])->save();
+    $config->set('islandora_oai_content_model_field', $form_state->getValues()['islandora_oai_configuration']['islandora_oai_content_model_field'])->save();
+    $config->set('islandora_oai_exclude_content_models', $form_state->getValues()['islandora_oai_configuration']['islandora_oai_exclude_content_models'])->save();
+    $config->set('islandora_oai_date_field', $form_state->getValues()['islandora_oai_configuration']['islandora_oai_date_field'])->save();
+    $config->set('islandora_oai_exclude_islandora_namespace', $form_state->getValues()['islandora_oai_configuration']['islandora_oai_exclude_islandora_namespace'])->save();
+    $config->set('islandora_oai_append_dc_thumbnail', $form_state->getValues()['islandora_oai_configuration']['islandora_oai_append_dc_thumbnail'])->save();
+    $config->set('islandora_oai_solr_remove_base_filters', $form_state->getValues()['islandora_oai_configuration']['islandora_oai_solr_remove_base_filters'])->save();
     // Loop through our transform options.
-    foreach ($form_state['values']['islandora_oai_metadata']['islandora_oai_options'] as $key => $value) {
+    foreach ($form_state->getValues()['islandora_oai_metadata']['islandora_oai_options'] as $key => $value) {
       // @FIXME
   // // @FIXME
   // // The correct configuration object could not be determined. You'll need to
@@ -342,7 +342,7 @@ class HandlerAdmin extends ConfigFormBase {
       $metadata_formats[$row->metadata_prefix] = $row->metadata_prefix;
     }
     foreach ($metadata_formats as $format) {
-      foreach ($form_state['values']['islandora_oai_metadata'][$format] as $key => $value) {
+      foreach ($form_state->getValues()['islandora_oai_metadata'][$format] as $key => $value) {
         // @FIXME
   // // @FIXME
   // // The correct configuration object could not be determined. You'll need to
