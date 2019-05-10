@@ -5,6 +5,7 @@ namespace Drupal\islandora_oai\Form;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
+use Drupal\Component\Utility\Unicode;
 
 /**
  * Configuration form for the standard Islandora OAI request handler.
@@ -76,10 +77,10 @@ class HandlerAdmin extends ConfigFormBase {
       '#type' => 'checkbox',
       '#title' => $this->t('Exclude objects within the "islandora" namespace?'),
       '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_exclude_islandora_namespace'),
-      '#description' => $this->t('If this option is selected, note that restrictions within the <a href="@solr_url">Islandora Solr Search</a> module must match up with those within the core <a href="@islandora_url">Islandora</a> module.', array(
+      '#description' => $this->t('If this option is selected, note that restrictions within the <a href="@solr_url">Islandora Solr Search</a> module must match up with those within the core <a href="@islandora_url">Islandora</a> module.', [
         '@solr_url' => Url::fromRoute('islandora_solr.admin_settings')->toString(),
         '@islandora_url' => Url::fromRoute('islandora.admin_config')->toString(),
-      )),
+      ]),
     ];
 
     $form['islandora_oai_configuration']['islandora_oai_append_dc_thumbnail'] = [
@@ -99,7 +100,7 @@ class HandlerAdmin extends ConfigFormBase {
     $metadata_formats = [];
     $results = db_query('SELECT * FROM {islandora_oai_metadata_formats} ORDER BY name');
     foreach ($results as $row) {
-      $metadata_format_options[$row->metadata_prefix] = \Drupal\Component\Utility\Unicode::strtoupper($row->metadata_prefix);
+      $metadata_format_options[$row->metadata_prefix] = Unicode::strtoupper($row->metadata_prefix);
       $metadata_formats[$row->metadata_prefix] = $row;
     }
 
