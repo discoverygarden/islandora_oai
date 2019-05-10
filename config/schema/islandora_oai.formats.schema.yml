@@ -1,0 +1,25 @@
+islandora_oai.format:
+  type: mapping
+  label: Islandora OAI Formats
+  mapping:
+    islandora_oai_metadata_datastream_id:
+      type: string
+      label: 'Metadata Datastream ID'
+    islandora_oai_transform_file:
+      type: string
+      label: 'File to use for transforming'
+    islandora_oai_self_transform_file:
+      type: string
+      label: 'Pre OAI transform'
+    islandora_oai_include_object_links:
+      type: boolean
+      label: 'Force include object link'
+    islandora_oai_object_links_xpath:
+      type: string
+      label: 'Where to include object link'
+    islandora_oai_object_links_field:
+      type: string
+      label: 'Name of field to include link into'
+    islandora_oai_object_links_record_namespace:
+      type: string
+      label: 'Include record namespace'

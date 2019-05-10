@@ -177,14 +177,4 @@ function islandora_oai_uninstall() {
   foreach ($results as $row) {
     $metadata_formats[] = $row->metadata_prefix;
   }
-// @TODO: handle this.
-  $variable_variables = array(
-    'islandora_oai_metadata_datastream_id_!format',
-    'islandora_oai_transform_file_!format',
-    'islandora_oai_self_transform_file_!format',
-    'islandora_oai_include_object_links_for_!format',
-    'islandora_oai_object_links_for_!format_xpath',
-    'islandora_oai_object_links_for_!format_field',
-    'islandora_oai_object_links_for_!format_record_namespace',
-  );
 }

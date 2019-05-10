@@ -1,5 +1,5 @@
 islandora_oai.settings:
-  type: mapping
+  type: config_object
   label: Settings
   mapping:
     islandora_oai_query_backend:
@@ -38,3 +38,12 @@ islandora_oai.settings:
       type: string
     islandora_oai_exclude_islandora_namespace:
       type: boolean
+islandora_oai.formats:
+  type: config_object
+  label: Formats
+  mapping:
+    formats:
+      type: sequence
+      label: Formats
+      sequence:
+        type: islandora_oai.format
