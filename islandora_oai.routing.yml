@@ -19,3 +19,5 @@ islandora_oai.handler_files_management:
     _title: 'File Management'
   requirements:
     _permission: 'administer islandora oai'
+route_callbacks:
+  - 'islandora_oai_routes'

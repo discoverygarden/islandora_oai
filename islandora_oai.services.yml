@@ -1,0 +1,3 @@
+services:
+  islandora_oai:
+    class: Drupal\islandora_oai\Services\Oai

@@ -134,7 +134,7 @@ function islandora_oai_parse_request() {
     }
   }
   $writer->endDocument();
-  $writer->flush();
+  return $writer->flush();
 }
 
 /**
