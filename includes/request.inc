@@ -5,6 +5,10 @@
  * Handles OAI requests and responds as appropriate.
  */
 
+use Drupal\Core\Url;
+
+use Drupal\islandora_solr\IslandoraSolrQueryProcessor;
+
 /**
  * Parses the URL and calls the appropriate function to handle the request.
  */
@@ -22,11 +26,9 @@ function islandora_oai_parse_request() {
   $response_date = gmstrftime('%Y-%m-%dT%H:%M:%SZ');
   $writer->writeElement('responseDate', $response_date);
 
-  // Arguments are all GET arguments except for Drupal's q.
-  if (isset($_GET) && count($_GET) != 1) {
+  if (isset($_GET) && count($_GET) >= 1) {
     $args = $_GET;
-    $verb = $_GET['verb'];
-    unset($args['q']);
+    $verb = isset($_GET['verb']) ? $_GET['verb'] : NULL;
     unset($args['verb']);
   }
   // Allow post requests.
@@ -79,7 +81,7 @@ function islandora_oai_parse_request() {
   // Check to see if we have a bad verb.
   $error_list = islandora_oai_get_errors();
 
-  if (!count($error_list)) {
+  if (!$error_list) {
     $writer->writeAttribute('verb', $verb);
   }
   $writer->text($request_url);
@@ -140,17 +142,12 @@ function islandora_oai_parse_request() {
 /**
  * Returns errors generated during an OAI request.
  *
- * @return bool|array
- *   FALSE when no errors, an array containing all errors encountered otherwise.
+ * @return array
+ *   An array containing all errors encountered.
  */
 function islandora_oai_get_errors() {
   // Get the errors array and convert it to a string.
   $errors = islandora_oai_add_error('get');
-
-  // Return false if no errors.
-  if (!count($errors)) {
-    return FALSE;
-  }
   return $errors;
 }
 
@@ -456,9 +453,7 @@ function islandora_oai_identify(&$writer, array $args) {
   $earliest_datestamp = islandora_oai_get_earliest_datetime();
   $writer->startElement('Identify');
   $writer->writeElement('repositoryName', \Drupal::config('islandora_oai.settings')->get('islandora_oai_repository_name'));
-  // @FIXME
-// url() expects a route name or an external URI.
-// $identify_base_url = url(\Drupal::config('islandora_oai.settings')->get('islandora_oai_path'), array('absolute' => TRUE));
+  $identify_base_url = Url::fromRoute('islandora_oai_oai', [], ['absolute' => TRUE])->toString();
 
   $writer->writeElement('baseURL', $identify_base_url);
   $writer->writeElement('protocolVersion', '2.0');

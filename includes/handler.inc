@@ -7,6 +7,8 @@
 
 use Drupal\Core\Url;
 
+use Drupal\islandora_solr\IslandoraSolrQueryProcessor;
+
 /**
  * Responds to the ListSets request.
  *

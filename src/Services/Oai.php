@@ -22,7 +22,9 @@ class Oai {
     module_load_include('inc', 'islandora_oai', 'includes/request');
     $output = islandora_oai_parse_request();
     $response = new Response();
-    $response->setContent($output);
+    if ($output) {
+      $response->setContent($output);
+    }
     $response->headers->set('Content-Type', 'text/xml');
     return $response;
   }
