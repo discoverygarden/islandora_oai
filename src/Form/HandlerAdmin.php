@@ -6,11 +6,36 @@ use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 use Drupal\Component\Utility\Unicode;
+use Drupal\Core\Extension\ModuleHandlerInterface;
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Configuration form for the standard Islandora OAI request handler.
  */
 class HandlerAdmin extends ConfigFormBase {
+
+  protected $moduleHandler;
+
+  /**
+   * Class constructor.
+   */
+  public function __construct(ConfigFactoryInterface $config_factory, ModuleHandlerInterface $module_handler) {
+    parent::__construct($config_factory);
+    $this->moduleHandler = $module_handler;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    // Instantiates this form class.
+    return new static(
+    // Load the service required to construct this class.
+      $container->get('config.factory'),
+      $container->get('module_handler')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -30,6 +55,7 @@ class HandlerAdmin extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
+    $config = $this->config('islandora_oai.settings');
     $form = [
       '#tree' => TRUE,
     ];
@@ -43,40 +69,40 @@ class HandlerAdmin extends ConfigFormBase {
       '#type' => 'textfield',
       '#title' => $this->t('Solr Date Field'),
       '#size' => '50',
-      '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_date_field'),
+      '#default_value' => $config->get('islandora_oai_date_field'),
       '#description' => $this->t('The Solr field containing the date to be used.'),
     ];
     $form['islandora_oai_configuration']['islandora_oai_collection_field'] = [
       '#type' => 'textarea',
       '#title' => $this->t('Solr RELS-EXT Collection Field'),
       '#size' => '50',
-      '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_collection_field'),
+      '#default_value' => $config->get('islandora_oai_collection_field'),
       '#description' => $this->t('The Solr fields used to determine what collection, if any, an object is a member of.'),
     ];
     $form['islandora_oai_configuration']['islandora_oai_content_model_field'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Solr Content Model Field'),
       '#size' => '50',
-      '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_content_model_field'),
+      '#default_value' => $config->get('islandora_oai_content_model_field'),
       '#description' => $this->t("Field which RELS-EXT datastreams use to define an object's content model."),
     ];
     $form['islandora_oai_configuration']['islandora_oai_solr_remove_base_filters'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Remove base Solr filters'),
       '#description' => $this->t('This option removes your configured Solr base filters from these queries. If you want your filters to be applied even though they could affect which objects are returned in the OAI results, uncheck this option.'),
-      '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_solr_remove_base_filters'),
+      '#default_value' => $config->get('islandora_oai_solr_remove_base_filters'),
     ];
     $form['islandora_oai_configuration']['islandora_oai_exclude_content_models'] = [
       '#type' => 'textarea',
       '#title' => $this->t('Excluded Content Models'),
       '#size' => '50',
-      '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_exclude_content_models'),
+      '#default_value' => $config->get('islandora_oai_exclude_content_models'),
       '#description' => $this->t('By default, all objects are visible to OAI metadata harvesters. This field allows you to exclude all objects with a certain content model, e.g "islandora:collectionCModel" to exclude all objects with the Islandora Core Collection content model. Content models are separated by line. NOTE: If islandora:collectionCModel is added, it will break the ListSets verb.'),
     ];
     $form['islandora_oai_configuration']['islandora_oai_exclude_islandora_namespace'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Exclude objects within the "islandora" namespace?'),
-      '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_exclude_islandora_namespace'),
+      '#default_value' => $config->get('islandora_oai_exclude_islandora_namespace'),
       '#description' => $this->t('If this option is selected, note that restrictions within the <a href="@solr_url">Islandora Solr Search</a> module must match up with those within the core <a href="@islandora_url">Islandora</a> module.', [
         '@solr_url' => Url::fromRoute('islandora_solr.admin_settings')->toString(),
         '@islandora_url' => Url::fromRoute('islandora.admin_config')->toString(),
@@ -86,10 +112,10 @@ class HandlerAdmin extends ConfigFormBase {
     $form['islandora_oai_configuration']['islandora_oai_append_dc_thumbnail'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Append on dc.identifier.thumbnail to OAI_DC requests?'),
-      '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_append_dc_thumbnail'),
+      '#default_value' => $config->get('islandora_oai_append_dc_thumbnail'),
       '#description' => $this->t("If this option is selected, a link to an object's thumbnail will be added to OAI_DC responses."),
     ];
-    if (!\Drupal::config('islandora.settings')->get('islandora_namespace_restriction_enforced')) {
+    if (!$this->config('islandora.settings')->get('islandora_namespace_restriction_enforced')) {
       $form['islandora_oai_configuration']['islandora_oai_exclude_islandora_namespace']['#disabled'] = TRUE;
       $form['islandora_oai_configuration']['islandora_oai_exclude_islandora_namespace']['#description'] = $this->t('Excluding the Islandora namespace is only possible when namespace restrictions are enabled within the <a href="@islandora_url">Islandora</a> module.', [
         '@islandora_url' => Url::fromRoute('islandora.admin_config')->toString(),
@@ -124,7 +150,7 @@ class HandlerAdmin extends ConfigFormBase {
       '#options' => $metadata_format_options,
     ];
 
-    $oai_invoke_files = \Drupal::moduleHandler()->invokeAll('islandora_oai_get_xsl_files');
+    $oai_invoke_files = $this->moduleHandler->invokeAll('islandora_oai_get_xsl_files');
     $transform_options = ['default' => $this->t('No transformation selected')];
     $transform_options = array_merge($transform_options, $oai_invoke_files);
 

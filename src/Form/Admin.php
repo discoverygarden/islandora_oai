@@ -5,11 +5,40 @@ namespace Drupal\islandora_oai\Form;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
+use Drupal\Core\Extension\ModuleHandlerInterface;
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Routing\RouteBuilderInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Module administration form.
  */
 class Admin extends ConfigFormBase {
+
+  protected $moduleHandler;
+  protected $routerBuilder;
+
+  /**
+   * Class constructor.
+   */
+  public function __construct(ConfigFactoryInterface $config_factory, ModuleHandlerInterface $module_handler, RouteBuilderInterface $router_builder) {
+    parent::__construct($config_factory);
+    $this->moduleHandler = $module_handler;
+    $this->routerBuilder = $router_builder;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    // Instantiates this form class.
+    return new static(
+    // Load the service required to construct this class.
+      $container->get('config.factory'),
+      $container->get('module_handler'),
+      $container->get('router.builder')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -30,6 +59,7 @@ class Admin extends ConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     global $base_url;
+    $config = $this->config('islandora_oai.settings');
     $form = [
       '#tree' => TRUE,
     ];
@@ -44,7 +74,7 @@ class Admin extends ConfigFormBase {
       '#title' => $this->t('Repository Name'),
       '#required' => TRUE,
       '#size' => '50',
-      '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_repository_name'),
+      '#default_value' => $config->get('islandora_oai_repository_name'),
     ];
     $form['islandora_oai_configuration']['islandora_oai_path'] = [
       '#type' => 'textfield',
@@ -52,7 +82,7 @@ class Admin extends ConfigFormBase {
       '#field_prefix' => $base_url . '/',
       '#required' => TRUE,
       '#size' => '50',
-      '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_path'),
+      '#default_value' => $config->get('islandora_oai_path'),
       '#description' => $this->t('The path where the OAI-PMH service will respond, e.g. @base_url/oai2', ['@base_url' => $base_url]),
     ];
     $form['islandora_oai_configuration']['islandora_oai_repository_identifier'] = [
@@ -60,33 +90,33 @@ class Admin extends ConfigFormBase {
       '#title' => $this->t('Repository unique identifier'),
       '#required' => TRUE,
       '#size' => '50',
-      '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_repository_identifier'),
+      '#default_value' => $config->get('islandora_oai_repository_identifier'),
       '#description' => $this->t('The identifier for this repository, e.g. oai:<strong>drupal-site.org</strong>:123.'),
     ];
     $form['islandora_oai_configuration']['islandora_oai_admin_email'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Administrator Email'),
       '#size' => '50',
-      '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_admin_email'),
+      '#default_value' => $config->get('islandora_oai_admin_email'),
     ];
     $form['islandora_oai_configuration']['islandora_oai_max_size'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Maximum Response Size'),
       '#size' => '50',
-      '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_max_size'),
+      '#default_value' => $config->get('islandora_oai_max_size'),
       '#description' => $this->t('The maximum number of records to issue per response. If the result set is larger than this number, a resumption token will be issued'),
     ];
     $form['islandora_oai_configuration']['islandora_oai_expire_time'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Expiration Time'),
       '#size' => '50',
-      '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_expire_time'),
+      '#default_value' => $config->get('islandora_oai_expire_time'),
       '#description' => $this->t('The amount of time a resumption token will remain valid, in seconds. Defaults to one day (86400s).'),
     ];
     $form['islandora_oai_configuration']['islandora_oai_query_backend'] = [
       '#type' => 'radios',
       '#title' => $this->t('Query Backend'),
-      '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_query_backend'),
+      '#default_value' => $config->get('islandora_oai_query_backend'),
       '#description' => $this->t('For larger repositories, OAI may perform poorly when attempting to perform the SPARQL queries it requires. In these cases, using the Solr backend may provide better results.'),
       '#options' => [
         'sparql' => $this->t('SPARQL'),
@@ -101,27 +131,27 @@ class Admin extends ConfigFormBase {
     $form['islandora_oai_configuration']['islandora_oai_solr_state_field'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Solr Object State Field'),
-      '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_solr_state_field'),
+      '#default_value' => $config->get('islandora_oai_solr_state_field'),
       '#description' => $this->t("The field in Solr that holds a Fedora object's state ('Active', 'Inactive', or 'Deleted')."),
       '#states' => $solr_config_states,
     ];
     $form['islandora_oai_configuration']['islandora_oai_solr_collection_description_field'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Solr Collection Description Field'),
-      '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_solr_collection_description_field'),
+      '#default_value' => $config->get('islandora_oai_solr_collection_description_field'),
       '#description' => $this->t('The field in Solr to use for collection descriptions.'),
       '#states' => $solr_config_states,
     ];
     $form['islandora_oai_configuration']['islandora_oai_solr_object_ancestors_field'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Solr Object Ancestors Field'),
-      '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_solr_object_ancestors_field'),
+      '#default_value' => $config->get('islandora_oai_solr_object_ancestors_field'),
       '#description' => $this->t("A multivalued string The field in Solr that defines an object's ancestors. If left blank, Solr will recurse manually to get the child tree of a particular set. Use of this field may return a different set of children than the recursive option; it is the responsibility of the implementer to ensure the ancestors field returns an appropriate hierarchy of parents."),
       '#states' => $solr_config_states,
     ];
 
     // Build up the available request handlers.
-    $defined_handlers = \Drupal::moduleHandler()->invokeAll(ISLANDORA_OAI_REQUEST_HANDLER_HOOK);
+    $defined_handlers = $this->moduleHandler->invokeAll(ISLANDORA_OAI_REQUEST_HANDLER_HOOK);
     if (!empty($defined_handlers)) {
       $form['islandora_oai_configuration']['handlers'] = [
         '#type' => 'item',
@@ -153,7 +183,7 @@ class Admin extends ConfigFormBase {
       $form['islandora_oai_configuration']['handlers']['default'] = [
         '#type' => 'radios',
         '#options' => isset($options) ? $options : [],
-        '#default_value' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_request_handler'),
+        '#default_value' => $config->get('islandora_oai_request_handler'),
       ];
     }
     else {
@@ -186,7 +216,7 @@ class Admin extends ConfigFormBase {
     $config->set('islandora_oai_solr_object_ancestors_field', $form_state->getValues()['islandora_oai_configuration']['islandora_oai_solr_object_ancestors_field'])->save();
     // Because of the dynamic pathing of the OAI path we need to rebuild the
     // menus.
-    \Drupal::service('router.builder')->rebuild();
+    $this->routerBuilder->rebuild();
     drupal_set_message($this->t('The configuration options have been saved.'));
 
     $config->save();

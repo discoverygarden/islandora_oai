@@ -517,10 +517,6 @@ EOQ;
       case 'solr':
         $date_field = \Drupal::config('islandora_oai.settings')->get('islandora_oai_date_field');
         $qp = new IslandoraSolrQueryProcessor();
-        $params = [
-          'sort' => "$date_field asc",
-          'limit' => 1,
-        ];
         $qp->buildQuery(strtr('!date_field:* AND !state_field:Active', [
           '!date_field' => $date_field,
           '!state_field' => \Drupal::config('islandora_oai.settings')->get('islandora_oai_solr_state_field'),
@@ -558,6 +554,7 @@ function islandora_oai_list_id_rec(&$writer, array $args, $list_rec = FALSE) {
   foreach ($args as $key => $val) {
     switch ($key) {
       case 'from':
+        // @codingStandardsIgnoreLine
         if (!isset($from)) {
           $from = $val;
         }
@@ -576,6 +573,7 @@ function islandora_oai_list_id_rec(&$writer, array $args, $list_rec = FALSE) {
         break;
 
       case 'until':
+        // @codingStandardsIgnoreLine
         if (!isset($until)) {
           $until = $val;
         }
@@ -594,6 +592,7 @@ function islandora_oai_list_id_rec(&$writer, array $args, $list_rec = FALSE) {
         break;
 
       case 'set':
+        // @codingStandardsIgnoreLine
         if (!isset($set)) {
           $set = $val;
         }
@@ -604,9 +603,10 @@ function islandora_oai_list_id_rec(&$writer, array $args, $list_rec = FALSE) {
         break;
 
       case 'metadataPrefix':
+        // @codingStandardsIgnoreLine
         if (!isset($metadata_prefix)) {
           $result = db_query("SELECT * FROM {islandora_oai_metadata_formats} WHERE BINARY metadata_prefix=:metadata_prefix ", [':metadata_prefix' => $val]);
-
+          // @codingStandardsIgnoreLine
           if ($result->rowCount() > 0 && !isset($metadata_prefix)) {
             $metadata_prefix = $val;
           }
@@ -628,6 +628,7 @@ function islandora_oai_list_id_rec(&$writer, array $args, $list_rec = FALSE) {
           islandora_oai_add_error('exclusiveArgument');
           return FALSE;
         }
+        // @codingStandardsIgnoreLine
         elseif (!isset($resumption_token)) {
           $resumption_token = $val;
         }
@@ -923,10 +924,7 @@ EOQ;
 
       case 'metadataPrefix':
         $result = db_query("SELECT * FROM {islandora_oai_metadata_formats} WHERE BINARY metadata_prefix=:metadata_prefix", [':metadata_prefix' => $val]);
-        if ($result->rowCount() > 0) {
-          $metadata_prefix = $val;
-        }
-        else {
+        if (!($result->rowCount() > 0)) {
           islandora_oai_add_error('cannotDisseminateFormat', $key, $val);
           return FALSE;
         }
@@ -995,6 +993,7 @@ function islandora_oai_list_sets($writer, array $args) {
           islandora_oai_add_error('exclusiveArgument');
           return FALSE;
         }
+        // @codingStandardsIgnoreLine
         elseif (!isset($resumption_token)) {
           $resumption_token = $val;
         }

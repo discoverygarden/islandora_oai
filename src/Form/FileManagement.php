@@ -103,7 +103,7 @@ class FileManagement extends FormBase {
       $deleted_count++;
     }
     if ($deleted_count > 0) {
-      drupal_set_message(\Drupal::translation()->formatPlural($deleted_count,
+      drupal_set_message($this->formatPlural($deleted_count,
         'Successfully deleted 1 file!',
         'Successfully deleted @count files!'
       ));
