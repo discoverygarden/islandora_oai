@@ -4,6 +4,10 @@ namespace Drupal\islandora_oai\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Database\Query\Condition;
+use Drupal\Core\Url;
+use Drupal\Core\Link;
+use PDO;
 
 /**
  * Renders a file management form.
@@ -21,19 +25,17 @@ class FileManagement extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
+    $form_state->loadInclude('islandora_oai', 'inc', 'includes/handler.admin');
     // Grab all the user uploaded files.
     $oai_uploaded_files = [];
     $upload_path = 'public://islandora_oai_xsls';
     $uploaded_files = file_scan_directory($upload_path, '/.*\.xslt?$/');
 
     foreach ($uploaded_files as $up_file) {
-      // @FIXME
-  // l() expects a Url object, created from a route name or external URI.
-  // $oai_uploaded_files[$up_file->uri] = array(
-  //       $up_file->filename,
-  //       l(t('download'), file_create_url($up_file->uri)),
-  //     );
-
+      $oai_uploaded_files[$up_file->uri] = [
+        $up_file->filename,
+        Link::fromTextAndUrl($this->t('download'), Url::fromUri(file_create_url($up_file->uri))),
+      ];
     }
     ksort($oai_uploaded_files);
     $form['islandora_oai_files'] = [
@@ -85,7 +87,7 @@ class FileManagement extends FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $deleted_count = 0;
-    $fid_or = db_or();
+    $fid_or = new Condition('OR');
     foreach ($form_state->getValue('table') as $uri => $selected) {
       if ($selected !== 0) {
         $fid_or->condition('uri', $uri, '=');
@@ -97,7 +99,7 @@ class FileManagement extends FormBase {
       ->execute()
       ->fetchAllAssoc('fid', PDO::FETCH_ASSOC);
     foreach ($fids as $fid) {
-      file_delete(file_load($fid['fid']));
+      file_delete($fid['fid']);
       $deleted_count++;
     }
     if ($deleted_count > 0) {
@@ -121,7 +123,7 @@ class FileManagement extends FormBase {
         }
       }
       if (!$selected) {
-        form_set_error('table', $this->t('Must select at least one entry to delete!'));
+        $form_state->setErrorByName('table', $this->t('Must select at least one entry to delete!'));
       }
     }
   }

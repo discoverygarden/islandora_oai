@@ -22,7 +22,7 @@ class Admin extends ConfigFormBase {
    * {@inheritdoc}
    */
   protected function getEditableConfigNames() {
-    return [''];
+    return ['islandora_oai.settings'];
   }
 
   /**
@@ -186,7 +186,7 @@ class Admin extends ConfigFormBase {
     $config->set('islandora_oai_solr_object_ancestors_field', $form_state->getValues()['islandora_oai_configuration']['islandora_oai_solr_object_ancestors_field'])->save();
     // Because of the dynamic pathing of the OAI path we need to rebuild the
     // menus.
-    menu_rebuild();
+    \Drupal::service('router.builder')->rebuild();
     drupal_set_message($this->t('The configuration options have been saved.'));
 
     $config->save();
