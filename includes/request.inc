@@ -6,6 +6,7 @@
  */
 
 use Drupal\Core\Url;
+use Drupal\Core\Database\Database;
 
 use Drupal\islandora_solr\IslandoraSolrQueryProcessor;
 
@@ -311,8 +312,13 @@ function islandora_oai_get_record(&$writer, array $args) {
         break;
 
       case 'metadataPrefix':
-        $result = db_query("SELECT * FROM {islandora_oai_metadata_formats} WHERE BINARY metadata_prefix=:metadata_prefix", [':metadata_prefix' => $val]);
-        if ($result->rowCount() > 0) {
+        $connection = Database::getConnection();
+        $select = $connection->select('islandora_oai_metadata_formats')
+          ->condition('metadata_prefix', $val);
+        $result = $select->countQuery()
+          ->execute()
+          ->fetchField();
+        if ($result > 0) {
           $metadata_prefix = $val;
         }
         else {
@@ -600,9 +606,14 @@ function islandora_oai_list_id_rec(&$writer, array $args, $list_rec = FALSE) {
       case 'metadataPrefix':
         // @codingStandardsIgnoreLine
         if (!isset($metadata_prefix)) {
-          $result = db_query("SELECT * FROM {islandora_oai_metadata_formats} WHERE BINARY metadata_prefix=:metadata_prefix ", [':metadata_prefix' => $val]);
+          $connection = Database::getConnection();
+          $select = $connection->select('islandora_oai_metadata_formats')
+            ->condition('metadata_prefix', $val);
+          $result = $select->countQuery()
+            ->execute()
+            ->fetchField();
           // @codingStandardsIgnoreLine
-          if ($result->rowCount() > 0 && !isset($metadata_prefix)) {
+          if ($result > 0 && !isset($metadata_prefix)) {
             $metadata_prefix = $val;
           }
           else {
@@ -918,8 +929,13 @@ EOQ;
         break;
 
       case 'metadataPrefix':
-        $result = db_query("SELECT * FROM {islandora_oai_metadata_formats} WHERE BINARY metadata_prefix=:metadata_prefix", [':metadata_prefix' => $val]);
-        if (!($result->rowCount() > 0)) {
+        $connection = Database::getConnection();
+        $select = $connection->select('islandora_oai_metadata_formats')
+          ->condition('metadata_prefix', $val);
+        $result = $select->countQuery()
+          ->execute()
+          ->fetchField();
+        if (!($result > 0)) {
           islandora_oai_add_error('cannotDisseminateFormat', $key, $val);
           return FALSE;
         }
