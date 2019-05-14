@@ -127,11 +127,9 @@ function islandora_oai_get_set_dc_portion(AbstractDatastream $dc) {
  */
 function islandora_oai_object_response_xml(array $params) {
   $object = islandora_object_load($params['pid']);
-  // @FIXME
-// // @FIXME
-// // The correct configuration object could not be determined. You'll need to
-// // rewrite this call manually.
-// $param = variable_get("islandora_oai_metadata_datastream_id_{$params['metadata_prefix']}", 'DC');
+  $formats = \Drupal::config('islandora_oai.formats')->get('formats');
+  $format = $formats[$params['metadata_prefix']];
+  $param = $format['islandora_oai_metadata_datastream_id'];
 
   if (isset($object[$param])) {
     $content = $object[$param]->content;
@@ -142,12 +140,7 @@ function islandora_oai_object_response_xml(array $params) {
 
   $oai_output = NULL;
   if (!empty($content)) {
-    // @FIXME
-// // @FIXME
-// // The correct configuration object could not be determined. You'll need to
-// // rewrite this call manually.
-// $self_transform_file = variable_get("islandora_oai_self_transform_file_{$params['metadata_prefix']}", 'default');
-
+    $self_transform_file = $format['islandora_oai_self_transform_file'];
     if ($self_transform_file != 'default') {
       $self_xslt = new XSLTProcessor();
       $self_xsl = new DOMDocument();
@@ -165,11 +158,7 @@ function islandora_oai_object_response_xml(array $params) {
 
     $xslt = new XSLTProcessor();
     $xsl = new DOMDocument();
-    // @FIXME
-// // @FIXME
-// // The correct configuration object could not be determined. You'll need to
-// // rewrite this call manually.
-// $file = variable_get("islandora_oai_transform_file_{$params['metadata_prefix']}", 'default');
+    $file = $format['islandora_oai_transform_file'];
 
     if ($file != 'default') {
       $xsl->load($file);
@@ -203,64 +192,59 @@ function islandora_oai_object_response_xml(array $params) {
     $oai_output = $dom->saveXML($dom->documentElement);
   }
 
-  // @FIXME
-// // @FIXME
-// // The correct configuration object could not be determined. You'll need to
-// // rewrite this call manually.
-// if (variable_get("islandora_oai_include_object_links_for_{$params['metadata_prefix']}", FALSE) && !empty($oai_output)) {
-//     // See if we need to XPath to a specific spot to add it.
-//     $dom = new DOMDocument();
-//     $dom->loadXML($oai_output);
-//     $results = db_query('SELECT * FROM {islandora_oai_metadata_formats} WHERE BINARY metadata_prefix = :metadata_prefix', array(':metadata_prefix' => $params['metadata_prefix']));
-//     $record = $results->fetchObject();
-//
-//     $object_url = url("islandora/object/{$object->id}", array(
-//       'absolute' => TRUE,
-//       'language' => NULL,
-//     ));
-//     $xpath = variable_get("islandora_oai_object_links_for_{$params['metadata_prefix']}_xpath", '');
-//     $field = variable_get("islandora_oai_object_links_for_{$params['metadata_prefix']}_field", '');
-//     $record_namespace = variable_get("islandora_oai_object_links_for_{$params['metadata_prefix']}_record_namespace", FALSE);
-//
-//     if ($xpath) {
-//       $dom_xpath = new DOMXPath($dom);
-//       $dom_xpath->registerNamespace($record->record_prefix, $record->record_namespace);
-//       $dom_xpath->registerNamespace($record->metadata_prefix, $record->metadata_namespace);
-//       $elements = $dom_xpath->query($xpath);
-//       if ($elements->length == 0) {
-//         watchdog('islandora_oai', 'Unable to append object URL as could not find the element to XPath to for @pid. Error information: Metadata Prefix: @prefix, XPath: @xpath', array(
-//           '@pid' => $object->id,
-//           '@prefix' => $params['metadata_prefix'],
-//           '@xpath' => $xpath,
-//         ));
-//       }
-//       else {
-//         // If there's more than one element we'll just append to the first.
-//         foreach ($elements as $element) {
-//           if ($record_namespace) {
-//             $link_element = $dom->createElementNS($record->record_namespace, "{$record->record_prefix}:{$field}", $object_url);
-//           }
-//           else {
-//             $link_element = $dom->createElement($field, $object_url);
-//           }
-//           $element->appendChild($link_element);
-//           $oai_output = $dom->saveXML($dom->documentElement);
-//           break;
-//         }
-//       }
-//     }
-//     else {
-//       if ($record_namespace) {
-//         $link_element = $dom->createElementNS($record->record_namespace, "{$record->record_prefix}:{$field}", $object_url);
-//       }
-//       else {
-//         $link_element = $dom->createElement("$field", $object_url);
-//       }
-//       $dom->documentElement->appendChild($link_element);
-//       $oai_output = $dom->saveXML($dom->documentElement);
-//     }
-//   }
+  if ($format['islandora_oai_include_object_links'] && !empty($oai_output)) {
+    // See if we need to XPath to a specific spot to add it.
+    $dom = new DOMDocument();
+    $dom->loadXML($oai_output);
+    $results = db_query('SELECT * FROM {islandora_oai_metadata_formats} WHERE BINARY metadata_prefix = :metadata_prefix', [':metadata_prefix' => $params['metadata_prefix']]);
+    $record = $results->fetchObject();
 
+    $object_url = Url::fromRoute('islandora.view_object', ['object' => $object->id], [
+      'absolute' => TRUE,
+      'language' => NULL,
+    ])->toString();
+    $xpath = $format['islandora_oai_object_links_xpath'];
+    $field = $format['islandora_oai_object_links_field'];
+    $record_namespace = $format['islandora_oai_object_links_record_namespace'];
+
+    if ($xpath) {
+      $dom_xpath = new DOMXPath($dom);
+      $dom_xpath->registerNamespace($record->record_prefix, $record->record_namespace);
+      $dom_xpath->registerNamespace($record->metadata_prefix, $record->metadata_namespace);
+      $elements = $dom_xpath->query($xpath);
+      if ($elements->length == 0) {
+        \Drupal::logger('islandora_oai')->error('Unable to append object URL as could not find the element to XPath to for @pid. Error information: Metadata Prefix: @prefix, XPath: @xpath', [
+          '@pid' => $object->id,
+          '@prefix' => $params['metadata_prefix'],
+          '@xpath' => $xpath,
+        ]);
+      }
+      else {
+        // If there's more than one element we'll just append to the first.
+        foreach ($elements as $element) {
+          if ($record_namespace) {
+            $link_element = $dom->createElementNS($record->record_namespace, "{$record->record_prefix}:{$field}", $object_url);
+          }
+          else {
+            $link_element = $dom->createElement($field, $object_url);
+          }
+          $element->appendChild($link_element);
+          $oai_output = $dom->saveXML($dom->documentElement);
+          break;
+        }
+      }
+    }
+    else {
+      if ($record_namespace) {
+        $link_element = $dom->createElementNS($record->record_namespace, "{$record->record_prefix}:{$field}", $object_url);
+      }
+      else {
+        $link_element = $dom->createElement("$field", $object_url);
+      }
+      $dom->documentElement->appendChild($link_element);
+      $oai_output = $dom->saveXML($dom->documentElement);
+    }
+  }
 
   // Transformation fails.
   if (empty($oai_output) && isset($object[$param])) {
@@ -419,8 +403,8 @@ function islandora_oai_construct_record_from_solr_response(array $solr_object) {
  * @param bool $until
  *   Whether an until time is specified.
  *
- * @return string
- *   A string representing the time in the given granularity.
+ * @return string|null
+ *   A string representing the time in the given granularity or null.
  */
 function islandora_oai_datetime_to_solr_time($datetime, $until = FALSE) {
   module_load_include('inc', 'islandora_oai', 'includes/request');
@@ -844,20 +828,16 @@ EOQ;
   // If the user is choosing to restrict things within the Islandora namespace
   // the filter needs to be modified as the islandora namespace is always
   // allowed by default.
-  // @FIXME
-// // @FIXME
-// // This looks like another module's variable. You'll need to rewrite this call
-// // to ensure that it uses the correct configuration object.
-// if (variable_get('islandora_namespace_restriction_enforced', FALSE) && variable_get('islandora_oai_exclude_islandora_namespace', FALSE)) {
-//     module_load_include('inc', 'islandora', 'includes/utilities');
-//     // This is somewhat of duplicated code but needs to be done so we remove
-//     // only the "islandora" namespace.
-//     $namespace_array = islandora_get_allowed_namespaces();
-//     $key = array_keys($namespace_array, 'islandora');
-//     $namespace_array = array_diff_key($namespace_array, array_flip($key));
-//     $namespace_sparql = implode('|', $namespace_array);
-//     $filters['islandora_namespace_restrictions'] = strtr('regex(str(?object), "info:fedora/(!namespaces):")', array('!namespaces' => $namespace_sparql));
-//   }
+  if (\Drupal::config('islandora.settings')->get('islandora_namespace_restriction_enforced') && \Drupal::config('islandora_oai.settings')->get('islandora_oai_exclude_islandora_namespace')) {
+    module_load_include('inc', 'islandora', 'includes/utilities');
+    // This is somewhat of duplicated code but needs to be done so we remove
+    // only the "islandora" namespace.
+    $namespace_array = islandora_get_allowed_namespaces();
+    $key = array_keys($namespace_array, 'islandora');
+    $namespace_array = array_diff_key($namespace_array, array_flip($key));
+    $namespace_sparql = implode('|', $namespace_array);
+    $filters['islandora_namespace_restrictions'] = strtr('regex(str(?object), "info:fedora/(!namespaces):")', ['!namespaces' => $namespace_sparql]);
+  }
 
   $filter_map = function ($filter) {
     return "FILTER($filter)";
