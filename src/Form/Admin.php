@@ -7,7 +7,6 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\Routing\RouteBuilderInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -16,15 +15,13 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class Admin extends ConfigFormBase {
 
   protected $moduleHandler;
-  protected $routerBuilder;
 
   /**
    * Class constructor.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, ModuleHandlerInterface $module_handler, RouteBuilderInterface $router_builder) {
+  public function __construct(ConfigFactoryInterface $config_factory, ModuleHandlerInterface $module_handler) {
     parent::__construct($config_factory);
     $this->moduleHandler = $module_handler;
-    $this->routerBuilder = $router_builder;
   }
 
   /**
@@ -35,8 +32,7 @@ class Admin extends ConfigFormBase {
     return new static(
     // Load the service required to construct this class.
       $container->get('config.factory'),
-      $container->get('module_handler'),
-      $container->get('router.builder')
+      $container->get('module_handler')
     );
   }
 
