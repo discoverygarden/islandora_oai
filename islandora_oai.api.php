@@ -13,6 +13,7 @@
  *   file system and the value is the name of the file.
  */
 function hook_islandora_oai_get_xsl_files() {
+  return [];
 }
 
 /**
@@ -96,46 +97,46 @@ function hook_islandora_oai_get_xsl_files() {
  *    the record belongs to.
  */
 function hook_islandora_oai_identify_request_handler() {
-  return array(
-    'my_cool_oai_handler' => array(
+  return [
+    'my_cool_oai_handler' => [
       'label' => t('My Cool OAI Handler'),
       'description' => t('Provides a standard OAI implementation for Islandora.'),
       'configuration' => 'admin/islandora/tools/my-cool-oai/handler',
-      'requests' => array(
-        'ListIdentifiers' => array(
+      'requests' => [
+        'ListIdentifiers' => [
           'file' => drupal_get_path('module', 'my_cool_oai_handler') . '/includes/handler.inc',
           'function' => 'my_cool_oai_handler_retrieve_records_or_identifiers',
-        ),
-        'ListRecords' => array(
+        ],
+        'ListRecords' => [
           'file' => drupal_get_path('module', 'my_cool_oai_handler') . '/includes/handler.inc',
           'function' => 'my_cool_oai_handler_retrieve_records_or_identifiers',
-        ),
-        'ListSets' => array(
+        ],
+        'ListSets' => [
           'file' => drupal_get_path('module', 'my_cool_oai_handler') . '/includes/handler.inc',
           'function' => 'my_cool_oai_handler_retrieve_sets',
-        ),
-        'GetRecord' => array(
+        ],
+        'GetRecord' => [
           'file' => drupal_get_path('module', 'my_cool_oai_handler') . '/includes/handler.inc',
           'function' => 'my_cool_oai_handler_retrieve_record',
-        ),
-        'response_xml' => array(
+        ],
+        'response_xml' => [
           'file' => drupal_get_path('module', 'my_cool_oai_handler') . '/includes/handler.inc',
           'function' => 'my_cool_oai_handler_object_response_xml',
-        ),
-        'set_membership' => array(
+        ],
+        'set_membership' => [
           'file' => drupal_get_path('module', 'my_cool_oai_handler') . '/includes/handler.inc',
           'function' => 'my_cool_oai_handler_get_membership',
-        ),
-      ),
-    ),
-  );
+        ],
+      ],
+    ],
+  ];
 }
 
 /**
  * Get module supplied XSLT params for self transform.
  *
  * * @param AbstractObject $object
- *   The object being called for the OAI request
+ *   The object being called for the OAI request.
  *
  * @param string $metadata_prefix
  *   The handler metadata prefix for the request.
@@ -146,6 +147,7 @@ function hook_islandora_oai_identify_request_handler() {
  *   passed to the XSLT transform.
  */
 function hook_islandora_oai_self_transform_params($object, $metadata_prefix) {
+  return [];
 }
 
 /**
@@ -159,8 +161,8 @@ function hook_islandora_oai_self_transform_params($object, $metadata_prefix) {
  *   executed.
  *   -pid (string): The pid of the object described in the record.
  */
-function hook_islandora_oai_record_alter(&$oai_record, &$params) {
-  if (ip_address() == '123.456.789.789' && $params['metadata_prefix'] == 'oai_dc') {
+function hook_islandora_oai_record_alter(&$oai_record, array &$params) {
+  if (\Drupal::request()->getClientIp() == '123.456.789.789' && $params['metadata_prefix'] == 'oai_dc') {
     $rights_value = "We want a custom rights statement.";
     $rights_element = "<dc:rights>" . $rights_value . "</dc:rights>";
 

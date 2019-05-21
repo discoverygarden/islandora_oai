@@ -1,0 +1,10 @@
+islandora_oai.admin:
+  route_name: islandora_oai.admin
+  parent: islandora.tools_admin
+  title: 'Islandora OAI'
+  description: 'Configure the Islandora OAI module.'
+islandora_oai.handler_admin:
+  route_name: islandora_oai.handler_admin
+  parent: islandora_oai.admin
+  title: 'Islandora OAI Request Handler'
+  description: 'Configure the Islandora OAI request handler.'
