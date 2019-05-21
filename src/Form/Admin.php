@@ -218,10 +218,6 @@ class Admin extends ConfigFormBase {
     $config->save();
 
     drupal_set_message($this->t('The configuration options have been saved.'));
-
-    // Because of the dynamic pathing of the OAI path we need to rebuild the
-    // menus.
-    $this->routerBuilder->rebuild();
   }
 
 }
