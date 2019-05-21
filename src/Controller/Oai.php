@@ -12,14 +12,19 @@ class Oai {
 
   /**
    * Get OAI response.
+   *
+   * XXX: We cannot use Drupal\Core\Cache\CacheableResponse here unless we
+   *   change the manner in which the OAI response is output... presently, it
+   *   dumps directly to "php://output".
    */
   public function response() {
     module_load_include('inc', 'islandora_oai', 'includes/request');
-    $output = islandora_oai_parse_request();
+
+    // XXX: This directly outputs to "php://output", so no need to set the
+    // response content... headers working due to output buffering (the whole
+    // "can't send headers after content" would otherwise rear its head).
+    islandora_oai_parse_request();
     $response = new Response();
-    if ($output) {
-      $response->setContent($output);
-    }
     $response->headers->set('Content-Type', 'text/xml');
     return $response;
   }
