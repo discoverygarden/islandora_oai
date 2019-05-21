@@ -20,4 +20,4 @@ islandora_oai.handler_files_management:
   requirements:
     _permission: 'administer islandora oai'
 route_callbacks:
-  - 'islandora_oai_routes'
+  - '\Drupal\islandora_oai\Controller\Oai::routes'
