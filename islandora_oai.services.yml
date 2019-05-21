@@ -1,6 +1,4 @@
 services:
-  islandora_oai:
-    class: Drupal\islandora_oai\Services\Oai
   islandora_oai.route_rebuilder:
     class: Drupal\islandora_oai\Config\ConfigSubscriber
     arguments:

@@ -5,28 +5,10 @@
  * Module used to respond to OAI requests.
  */
 
-use Symfony\Component\Routing\Route;
-
 // @codingStandardsIgnoreStart
 define('ISLANDORA_OAI_REQUEST_HANDLER_HOOK', 'islandora_oai_identify_request_handler');
 define('ISLANDORA_OAI_ADMINISTER_PERMISSION', 'administer islandora oai');
 // @codingStandardsIgnoreEnd
-
-/**
- * Dynamic routing for OAI endpoint.
- */
-function islandora_oai_routes() {
-  $items['islandora_oai_oai'] = new Route(
-    \Drupal::config('islandora_oai.settings')->get('islandora_oai_path'),
-    [
-      '_title' => 'OAI2',
-      '_controller' => 'islandora_oai:oai',
-    ],
-    ['_permission' => 'access content']
-  );
-
-  return $items;
-}
 
 /**
  * Implements hook_islandora_oai_get_xsl_files().
