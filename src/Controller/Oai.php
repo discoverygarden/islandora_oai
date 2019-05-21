@@ -34,9 +34,10 @@ class Oai {
       \Drupal::config('islandora_oai.settings')->get('islandora_oai_path'),
       [
         '_title' => 'OAI2',
-        '_controller' => __CLASS__ . '::response',
+        '_controller' => static::class . '::response',
       ],
-      ['_permission' => 'access content']
+      ['_permission' => 'access content'],
+      ['no_cache' => TRUE]
     );
 
     return $items;
