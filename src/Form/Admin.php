@@ -100,7 +100,7 @@ class Admin extends ConfigFormBase {
       '#title' => $this->t('Maximum Response Size'),
       '#size' => '50',
       '#default_value' => $config->get('islandora_oai_max_size'),
-      '#description' => $this->t('The maximum number of records to issue per response. If the result set is larger than this number, a resumption token will be issued'),
+      '#description' => $this->t('The maximum number of records to issue per response. If the result set is larger than this number, a resumption token will be issued.'),
     ];
     $form['islandora_oai_configuration']['islandora_oai_expire_time'] = [
       '#type' => 'textfield',

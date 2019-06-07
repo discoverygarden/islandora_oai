@@ -116,7 +116,7 @@ function islandora_oai_schema() {
   ];
 
   $schema['islandora_oai_metadata_formats'] = [
-    'description' => 'Stores information about OAI2 formats',
+    'description' => 'Stores information about OAI2 formats.',
     'fields' => [
       'name' => [
         'type' => 'varchar',
