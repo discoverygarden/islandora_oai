@@ -312,6 +312,7 @@ function islandora_oai_get_record(&$writer, array $args) {
         break;
 
       case 'metadataPrefix':
+        assert(is_scalar($val), '$val is a scalar, so should work fine with "="');
         $connection = Database::getConnection();
         $select = $connection->select('islandora_oai_metadata_formats')
           ->condition('metadata_prefix', $val);
@@ -606,6 +607,7 @@ function islandora_oai_list_id_rec(&$writer, array $args, $list_rec = FALSE) {
       case 'metadataPrefix':
         // @codingStandardsIgnoreLine
         if (!isset($metadata_prefix)) {
+          assert(is_scalar($val), '$val is a scalar, so should work fine with "="');
           $connection = Database::getConnection();
           $select = $connection->select('islandora_oai_metadata_formats')
             ->condition('metadata_prefix', $val);
@@ -929,6 +931,7 @@ EOQ;
         break;
 
       case 'metadataPrefix':
+        assert(is_scalar($val), '$val is a scalar, so should work fine with "="');
         $connection = Database::getConnection();
         $select = $connection->select('islandora_oai_metadata_formats')
           ->condition('metadata_prefix', $val);
